@@ -1,0 +1,50 @@
+# === IDE ===
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# === Maven ===
+target/
+!**/src/main/**/target/
+!**/src/test/**/target/
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# === Java ===
+*.class
+*.log
+hs_err_pid*
+replay_pid*
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Spring Boot ===
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# === VS Code ===
+.vscode/
+
+# === NetBeans ===
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# === Environment / Secrets ===
+*.env
+application-local.properties
+
