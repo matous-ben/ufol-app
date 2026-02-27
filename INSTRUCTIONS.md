@@ -103,11 +103,11 @@ The professor explicitly requires **architecture and design BEFORE implementatio
 ### 1. Business Story ✅ DONE
 Half an A4 page. Explains the problem, solution, and value for a non-technical reader. Written in Czech. Document attached.
 
-### 2. User Stories ⏳ IN PROGRESS
+### 2. User Stories ✅ DONE
 Format: *"As a [user type], I want to [action], so that [value]."*
-Currently drafted, being refined. Two actors: Visitor and Admin.
+Two actors: Visitor and Admin.
 
-### 3. Use Case Diagram (RECOMMENDED by professor)
+### 3. Use Case Diagram ✅ DONE
 UML notation (chosen over BPMN — BPMN better suited for enterprise process flows, UML more appropriate here).
 - Actors as stick figures outside system boundary rectangle
 - Use cases as ovals
@@ -115,7 +115,7 @@ UML notation (chosen over BPMN — BPMN better suited for enterprise process flo
 - `<<extend>>` for optional extensions
 - Tool: draw.io / diagrams.net
 
-### 4. Use Case Scenarios (minimum 2 detailed ones)
+### 4. Use Case Scenarios (minimum 2 detailed ones) ⏳ IN PROGRESS
 Each scenario must include:
 - Use Case ID, Name, Actor, Precondition, Postcondition, Trigger
 - **Main Flow** — step-by-step happy path
@@ -224,3 +224,4 @@ Read everything above carefully. Then:
 Do not suggest skipping any design step. Do not write implementation code until we have completed steps 1-8 of the design process. If I ask you to skip ahead, remind me why the professor's methodology exists and what the cost of premature implementation is.
 
 Let's build this properly.
+
