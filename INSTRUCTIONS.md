@@ -115,23 +115,23 @@ UML notation (chosen over BPMN — BPMN better suited for enterprise process flo
 - `<<extend>>` for optional extensions
 - Tool: draw.io / diagrams.net
 
-### 4. Use Case Scenarios (minimum 2 detailed ones) ⏳ IN PROGRESS
+### 4. Use Case Scenarios (minimum 2 detailed ones) ✅ DONE
 Each scenario must include:
 - Use Case ID, Name, Actor, Precondition, Postcondition, Trigger
 - **Main Flow** — step-by-step happy path
 - **Alternative Flows** — at least 2-3 error/edge cases per scenario
 
 Chosen scenarios:
-- **UC-01:** View League Standings (covers read path + standings calculation)
-- **UC-02:** Enter Match Result with Events (covers auth check, validation, business rules, cascade effects)
+- **UC-01:** View League Standings
+- **UC-02:** Enter Match Result with Events
 
-### 5. Functional Requirements
+### 5. Functional Requirements ✅ DONE
 What the system MUST do. Derived from user stories. Format: FR-01, FR-02... with priority (Must Have / Should Have / Could Have).
 
-### 6. Non-functional Requirements
+### 6. Non-functional Requirements ✅ DONE
 How well the system must perform. Covers: performance, security, usability, maintainability, compatibility.
 
-### 7. Architecture Design
+### 7. Architecture Design ⏳ IN PROGRESS
 - **UML Deployment Diagram** — shows Client node (browser), Application Server node (JVM + Spring Boot + Tomcat), Database Server node (PostgreSQL). Show both local dev and hypothetical production configurations.
 - **ADR (Architecture Decision Records)** — one document per major technology decision. Format: Status / Context / Decision / Reasoning / Consequences. Required ADRs: Thymeleaf vs React, PostgreSQL vs H2, Spring Security vs custom auth, Maven vs Gradle.
 - Note from professor: *"Architecture vs Design — decisions always lean toward one side. There is no universal best practice, everything is a trade-off."*
