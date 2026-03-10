@@ -131,12 +131,12 @@ What the system MUST do. Derived from user stories. Format: FR-01, FR-02... with
 ### 6. Non-functional Requirements ✅ DONE
 How well the system must perform. Covers: performance, security, usability, maintainability, compatibility.
 
-### 7. Architecture Design ⏳ IN PROGRESS
+### 7. Architecture Design ✅ DONE
 - **UML Deployment Diagram** — shows Client node (browser), Application Server node (JVM + Spring Boot + Tomcat), Database Server node (PostgreSQL). Show both local dev and hypothetical production configurations.
 - **ADR (Architecture Decision Records)** — one document per major technology decision. Format: Status / Context / Decision / Reasoning / Consequences. Required ADRs: Thymeleaf vs React, PostgreSQL vs H2, Spring Security vs custom auth, Maven vs Gradle.
 - Note from professor: *"Architecture vs Design — decisions always lean toward one side. There is no universal best practice, everything is a trade-off."*
 
-### 8. UI/UX Wireframes
+### 8. UI/UX Wireframes ⏳ IN PROGRESS
 - Max 15 screens, quality over quantity
 - Process: pencil and paper first → then Figma
 - Tool: Figma (student already has experience)
@@ -161,13 +161,13 @@ Document how authentication works (Spring Security session-based, BCrypt passwor
 
 ```
 ✅ Business Story — written, attached
-⏳ User Stories — drafted, being refined  
-⬜ Use Case Diagram
-⬜ Use Case Scenarios (UC-01 template provided, UC-02 being written by student)
-⬜ Functional Requirements
-⬜ Non-functional Requirements
-⬜ Architecture Design (UML Deployment + ADR)
-⬜ UI/UX Wireframes
+✅ User Stories — drafted, being refined  
+✅ Use Case Diagram
+✅ Use Case Scenarios (UC-01 template provided, UC-02 being written by student)
+✅ Functional Requirements
+✅ Non-functional Requirements
+✅ Architecture Design (UML Deployment + ADR)
+⏳ UI/UX Wireframes
 ✅ ERD — exists from previous semester, needs PostgreSQL adaptation
 ⬜ API Design (OpenAPI)
 ⬜ Business Logic Description
@@ -216,7 +216,7 @@ IMPLEMENTATION:
 Read everything above carefully. Then:
 
 1. **Review the attached repository thoroughly** — read the source code, existing files, application.properties, pom.xml, any existing entities, and all documentation files present. Build a complete understanding of the current state of the project before saying anything.
-2. **Summarise what you find** — give me a concise overview of what exists in the repo, what the current state is, and what is still missing based on the professor's required deliverables.
+2. **Summarize what you find** — give me a concise overview of what exists in the repo, what the current state is, and what is still missing based on the professor's required deliverables.
 3. **Confirm you understand** my background, the methodology, and the professor's requirements.
 4. **Ask me where I currently am** — which design step I am working on right now.
 5. Based on my answer, guide me through the next step using the professor's methodology.
