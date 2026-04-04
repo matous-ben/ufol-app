@@ -1,0 +1,36 @@
+services:
+  # --- postgres container ---
+  postgres:
+    image: postgres:18
+    container_name: ufol-postgres
+    environment:
+        POSTGRES_DB: ufoldb
+        POSTGRES_USER: ufoluser
+        POSTGRES_PASSWORD: ufolpassword
+    ports:
+        - "5432:5432"
+    volumes:
+      - ufol-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ufoluser -d ufoldb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- spring boot container ---
+  app:
+    build: .
+    container_name: ufol-app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ufoldb
+      SPRING_DATASOURCE_USERNAME: ufoluser
+      SPRING_DATASOURCE_PASSWORD: ufolpassword
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  ufol-data:

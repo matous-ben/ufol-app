@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+# Maven wrapper
+/mvnw text eol=lf
+mvnw.cmd text eol=crlf
+
+# Windows scripts
+*.cmd text eol=crlf
+*.bat text eol=crlf
