@@ -1,5 +1,6 @@
-package cz.ufol.app.match;
+package cz.ufol.app.event;
 
+import cz.ufol.app.match.UcastVZapase;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -3,6 +3,7 @@ package cz.ufol.app.season;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -23,11 +24,11 @@ public class Rocnik {
     @Column(length = 50, nullable = false, unique = true)
     private String nazev;
 
-    @NotBlank
+    @NotNull
     @Column(name = "rok_od", nullable = false)
     private Integer rokOd;
 
-    @NotBlank
+    @NotNull
     @Column(name = "rok_do", nullable = false)
     private Integer rokDo;
 

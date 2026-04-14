@@ -1,4 +1,4 @@
-package cz.ufol.app.match;
+package cz.ufol.app.event;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
