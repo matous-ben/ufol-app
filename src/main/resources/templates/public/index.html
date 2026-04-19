@@ -125,7 +125,10 @@
 
                                     <td class="league-table__cell league-table__cell--team">
                                         <div class="league-table__team-content">
-                                            <img class="league-table__logo" src="./images/logos/vste.webp" alt="Team Logo" loading="lazy">
+                                            <img class="league-table__logo"
+                                                 th:src="@{'/images/teams/' + ${row.logoFile}}"
+                                                 th:alt="${row.nazevTymu}"
+                                                 loading="lazy">
                                             <span class="league-table__name" th:text="${row.nazevTymu}">VŠTE</span>
                                         </div>
                                     </td>
