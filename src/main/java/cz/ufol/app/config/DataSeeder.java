@@ -51,30 +51,32 @@ public class DataSeeder {
 
             // Universities and teams
             if (univerzitaRepository.count() == 0) {
-                Univerzita uhk = univerzitaRepository.save(
-                        Univerzita.builder()
-                                .nazev("Univerzita Hradec Králové")
-                                .zkratka("UHK")
-                                .build());
+                Object[][] data = {
+                        {"Univerzita Hradec Králové", "UHK", "uhk.svg"},
+                        {"Univerzita Pardubice", "UPCE", "upce.svg"},
+                        {"Masarykova univerzita", "MUNI", "muni.svg"},
+                        {"České vysoké učení technické v Praze", "ČVUT", "cvut.svg"},
+                        {"Česká zemědělská univerzita v Praze", "ČZU", "czu.svg"},
+                        {"Jihočeská univerzita v Českých Budějovicích", "JU", "ju.svg"},
+                        {"Ostravská univerzita", "OSU", "osu.svg"},
+                        {"Technická univerzita v Liberci", "TUL", "tul.svg"},
+                        {"Univerzita J. E. Purkyně v Ústí nad Labem", "UJEP", "ujep.svg"},
+                        {"Univerzita Karlova", "UK", "uk.svg"},
+                        {"Univerzita Palackého v Olomouci", "UPOL", "upol.svg"},
+                        {"Univerzita Tomáše Bati ve Zlíně", "UTB", "utb.svg"},
+                        {"VŠB – Technická univerzita Ostrava", "VŠB", "vsb.webp"},
+                        {"Vysoká škola ekonomická v Praze", "VŠE", "vse.svg"},
+                        {"Vysoká škola technická a ekonomická v ČB", "VŠTE", "vste.webp"},
+                        {"Západočeská univerzita v Plzni", "ZČU", "zcu.svg"}
+                };
 
-                Univerzita upce = univerzitaRepository.save(
-                        Univerzita.builder()
-                                .nazev("Univerzita Pardubice")
-                                .zkratka("UPCE")
-                                .build());
-
-                Univerzita muni = univerzitaRepository.save(
-                        Univerzita.builder()
-                                .nazev("Masarykova univerzita")
-                                .zkratka("MUNI")
-                                .build());
-
-                tymRepository.save(Tym.builder()
-                        .nazev("Hradečáci").univerzita(uhk).build());
-                tymRepository.save(Tym.builder()
-                        .nazev("Pardubáci").univerzita(upce).build());
-                tymRepository.save(Tym.builder()
-                        .nazev("Brňáci").univerzita(muni).build());
+                for (Object[] row : data) {
+                    univerzitaRepository.save(Univerzita.builder()
+                            .nazev((String) row[0])
+                            .zkratka((String) row[1])
+                            .logoFile((String) row[2])
+                            .build());
+                }
             }
 
             // Active season
