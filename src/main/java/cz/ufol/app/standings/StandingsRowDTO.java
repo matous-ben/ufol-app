@@ -15,6 +15,7 @@ public class StandingsRowDTO {
     private int vstreleneGoly;
     private int obdrzeneGoly;
     private int body;
+    private String logoFile;
 
     public int getGoloveSkore() {
         return vstreleneGoly - obdrzeneGoly;

@@ -90,7 +90,8 @@ public class StandingsService {
                     s[3], // prohry
                     s[4], // vstrelene goly
                     s[5], // obdrzene goly
-                    body
+                    body,
+                    tym.getUniverzita().getLogoFile()
             ));
         }
 

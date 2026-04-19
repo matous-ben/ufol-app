@@ -27,6 +27,6 @@ public class Univerzita {
     @Column(length = 15, nullable = false, unique = true)
     private String zkratka;
 
-    @Column(name = "logo_url", length = 255)
-    private String logoUrl;
+    @Column(name = "logo_file", length = 50)
+    private String logoFile;
 }
