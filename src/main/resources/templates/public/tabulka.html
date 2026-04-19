@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Tabulka Univerzitní fotbalové ligy - aktuální pořadí týmů UFoL" />
+
+        <title>Tabulka | UFoL</title>
+        <link rel="icon" th:href="@{/images/favicon-ufol.png}" />
+
+        <!-- Optimized font loading - non-blocking -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+            rel="stylesheet"
+            media="print"
+            onload="this.media='all'"
+        />
+        <noscript>
+            <link
+                href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+                rel="stylesheet"
+            />
+        </noscript>
+        
+        <!-- Main styles -->
+        <link rel="stylesheet" th:href="@{/css/main.css}" />
+        
+        <!-- JavaScript for responsive navigation -->
+        <script th:src="@{/js/script.js}" defer></script>
+    </head>
+
+    <body>
+
+        <!-- Include the header fragment from layout.html -->
+        <header th:replace="~{fragments/layout :: header}"></header>
+
+        <main>
+            <section class="standings">
+                <div class="standings__content">
+                    <div class="standings__header">
+                        <h1>Tabulka ligy</h1>
+                    </div>
+                    <span class="standings__hint">
+                        <p>Posunutím zobrazíte celou tabulku →</p>
+                    </span>
+                    <div class="standings__table-content">
+                        
+                        <table class="league-table">
+                            <thead>
+                                <tr class="league-table__header-row">
+                                    <th class="league-table__th league-table__th--pos">Poz.</th>
+                                    <th class="league-table__th league-table__th--team">Klub</th>
+                                    <th class="league-table__th">Z</th>
+                                    <th class="league-table__th">V</th>
+                                    <th class="league-table__th">R</th>
+                                    <th class="league-table__th">P</th>
+                                    <th class="league-table__th">Skóre</th>
+                                    <th class="league-table__th">Body</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <!-- Loop through the standings data passed from the controller -->
+                                <tr th:each="row, stat : ${standings}"
+                                    class="league-table__row"
+                                    th:classappend="${stat.even} ? ' league-table__row--zebra' : ''">
+                                    <td class="league-table__cell league-table__cell--pos"
+                                        th:text="${stat.count} + '.'">1.</td>
+                                    <td class="league-table__cell league-table__cell--team">
+                                        <div class="league-table__team-content">
+                                            <span class="league-table__name" th:text="${row.nazevTymu}">VŠTE</span>
+                                        </div>
+                                    </td>
+                                    <td class="league-table__cell" th:text="${row.odehrane}">7</td>
+                                    <td class="league-table__cell" th:text="${row.vyhry}">6</td>
+                                    <td class="league-table__cell" th:text="${row.remizy}">1</td>
+                                    <td class="league-table__cell" th:text="${row.prohry}">0</td>
+                                    <td class="league-table__cell" th:text="${row.skore}">19:6</td>
+                                    <td class="league-table__cell" th:text="${row.body}">19</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Include the footer fragment from layout.html -->
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </body>
+</html>
