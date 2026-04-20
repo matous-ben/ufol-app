@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Přehled všech týmů v Univerzitní fotbalové lize UFoL" />
+
+        <title>Týmy | UFoL</title>
+        <link rel="icon" th:href="@{/images/favicon-ufol.png}" />
+
+        <!-- Optimized font loading - non-blocking -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+            rel="stylesheet"
+            media="print"
+            onload="this.media='all'"
+        />
+        <noscript>
+            <link
+                href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+                rel="stylesheet"
+            />
+        </noscript>
+
+        <!-- Main styles -->
+        <link rel="stylesheet" th:href="@{/css/main.css}" />
+
+        <!-- JavaScript for responsive navigation -->
+        <script th:src="@{/js/script.js}" defer></script>
+    </head>
+
+    <body>
+
+        <!-- Include the header fragment from layout.html -->
+        <header th:replace="~{fragments/layout :: header}"></header>
+
+        <main>
+            <section class="teams">
+                <div class="teams__content">
+                    <div class="teams__header">
+                        <h1>Přehled týmů</h1>
+                    </div>
+
+                    <div class="teams__grid">
+                        <div class="team-card" th:each="tym : ${tymy}">
+                            <div class="team-card__header">
+                                <img class="team-card__logo"
+                                     th:src="@{'/images/teams/' + ${tym.univerzita.zkratka.toLowerCase()} + '.svg'}"
+                                     th:alt="${tym.nazev} + ' Logo'"
+                                     onerror="this.src='/images/teams/default.svg'"
+                                     loading="lazy">
+                            </div>
+                            <div class="team-card__body">
+                                <h3 class="team-card__acronym" th:text="${tym.univerzita.zkratka}">UHK</h3>
+                                <p class="team-card__name" th:text="${tym.univerzita.nazev}">Univerzita Hradec Králové</p>
+                            </div>
+                            <div class="team-card__footer">
+                                <span class="team-card__link">Detail týmu →</span>
+                            </div>
+                            <a th:href="@{/tymy/{id}(id=${tym.id})}"
+                               class="team-card__overlay-link"
+                               th:aria-label="'Detail týmu ' + ${tym.nazev}"></a>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+
+        <!-- Include the footer fragment from layout.html -->
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+
+    </body>
+</html>
