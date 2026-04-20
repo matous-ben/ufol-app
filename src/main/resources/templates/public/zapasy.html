@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Výsledky a program zápasů Univerzitní fotbalové ligy UFoL">
+    <title>Výsledky a program | UFoL</title>
+    <link rel="icon" th:href="@{/images/favicon-ufol.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+              rel="stylesheet">
+    </noscript>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+<body>
+
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main>
+    <section class="matches">
+        <div class="matches__content">
+
+            <div class="matches__header">
+                <h1>Výsledky a program</h1>
+            </div>
+
+            <!-- Filter buttons — JS will show/hide match groups -->
+            <div class="matches__filters">
+                <button class="filter-btn filter-btn--active" data-filter="all">Vše</button>
+                <button class="filter-btn" data-filter="naplanowane">Plánované</button>
+                <button class="filter-btn" data-filter="odehrane">Odehrané</button>
+            </div>
+
+            <!-- PLANNED MATCHES -->
+            <!-- th:if hides this entire section if the list is empty -->
+            <div class="matches__group" data-group="naplanowane"
+                 th:if="${!naplanovane.isEmpty()}">
+                <h3 class="matches__group-title">Naplánované zápasy</h3>
+                <div class="upcoming-matches__list">
+
+                    <div class="match-card" th:each="zapas : ${naplanovane}">
+                        <!-- Home team -->
+                        <div class="match-card__team">
+                            <img class="match-card__logo"
+                                 th:src="@{'/images/teams/' + ${zapas.domaciTym.univerzita.logoFile}}"
+                                 th:alt="${zapas.domaciTym.nazev}"
+                                 loading="lazy">
+                            <span class="match-card__name"
+                                  th:text="${zapas.domaciTym.univerzita.zkratka}">UHK</span>
+                        </div>
+
+                        <!-- Match info — for planned matches show date/time -->
+                        <div class="match-card__info">
+                            <div class="match-card__meta">
+                                <!-- #temporals is Thymeleaf's date/time utility -->
+                                <span class="match-card__time"
+                                      th:text="${zapas.datumCas != null ?
+                                              #temporals.format(zapas.datumCas, 'HH:mm') : '-'}">
+                                        16:00
+                                    </span>
+                                <span class="match-card__date"
+                                      th:text="${zapas.datumCas != null ?
+                                              #temporals.format(zapas.datumCas, 'd. M. yyyy') : '-'}">
+                                        10. 12. 2025
+                                    </span>
+                            </div>
+                        </div>
+
+                        <!-- Away team -->
+                        <div class="match-card__team">
+                                <span class="match-card__name"
+                                      th:text="${zapas.hosteTym.univerzita.zkratka}">UPCE</span>
+                            <img class="match-card__logo"
+                                 th:src="@{'/images/teams/' + ${zapas.hosteTym.univerzita.logoFile}}"
+                                 th:alt="${zapas.hosteTym.nazev}"
+                                 loading="lazy">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- PLAYED MATCHES -->
+            <div class="matches__group" data-group="odehrane"
+                 th:if="${!odehrane.isEmpty()}">
+                <h3 class="matches__group-title">Odehrané zápasy</h3>
+                <div class="upcoming-matches__list">
+
+                    <div class="match-card" th:each="zapas : ${odehrane}">
+                        <!-- Home team -->
+                        <div class="match-card__team">
+                            <img class="match-card__logo"
+                                 th:src="@{'/images/teams/' + ${zapas.domaciTym.univerzita.logoFile}}"
+                                 th:alt="${zapas.domaciTym.nazev}"
+                                 loading="lazy">
+                            <span class="match-card__name"
+                                  th:text="${zapas.domaciTym.univerzita.zkratka}">UHK</span>
+                        </div>
+
+                        <!-- Match info — for played matches show score -->
+                        <div class="match-card__info">
+                                <span class="match-card__score match-card__score--final"
+                                      th:text="${zapas.domaciSkore} + ' : ' + ${zapas.hosteSkore}">
+                                    2 : 1
+                                </span>
+                            <span class="match-card__status">Konec</span>
+                        </div>
+
+                        <!-- Away team -->
+                        <div class="match-card__team">
+                                <span class="match-card__name"
+                                      th:text="${zapas.hosteTym.univerzita.zkratka}">UPCE</span>
+                            <img class="match-card__logo"
+                                 th:src="@{'/images/teams/' + ${zapas.hosteTym.univerzita.logoFile}}"
+                                 th:alt="${zapas.hosteTym.nazev}"
+                                 loading="lazy">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Empty state — shown when both lists are empty -->
+            <div th:if="${naplanovane.isEmpty() && odehrane.isEmpty()}"
+                 style="text-align: center; padding: 3rem; color: var(--color-text-subtle);">
+                <p>Žádné zápasy nejsou k dispozici.</p>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
+</body>
+</html>

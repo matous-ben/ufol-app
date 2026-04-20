@@ -70,3 +70,34 @@
         link.addEventListener('click', closeMenu);
     });
 })();
+
+/* =========================================
+    Match filter functionality
+   ========================================= */
+(function() {
+    'use strict';
+
+    const filterBtns = document.querySelectorAll('.filter-btn[data-filter]');
+    if (!filterBtns.length) return; // Not on zapasy page
+
+    const groups = document.querySelectorAll('.matches__group[data-group]');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+
+            // Update active button
+            filterBtns.forEach(b => b.classList.remove('filter-btn--active'));
+            this.classList.add('filter-btn--active');
+
+            // Show/hide groups
+            groups.forEach(group => {
+                if (filter === 'all' || group.dataset.group === filter) {
+                    group.style.display = '';
+                } else {
+                    group.style.display = 'none';
+                }
+            });
+        });
+    });
+})();
