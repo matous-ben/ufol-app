@@ -22,7 +22,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/", "/tabulka", "/zapasy/**",
                                 "/tymy/**", "/css/**", "/images/**",
-                                "/js/**", "/login"
+                                "/js/**", "/login",
+                                "/swagger-ui.html", "/swagger-ui",
+                                "/v3/api-docs/"
                         ).permitAll()
                         .requestMatchers("/admin/**").authenticated()
                         .anyRequest().permitAll()
