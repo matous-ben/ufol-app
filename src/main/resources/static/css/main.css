@@ -9,9 +9,6 @@
     padding: 0;
 }
 
-body {
-    line-height: 1.5;
-}
 
 img,
 picture,
@@ -73,11 +70,23 @@ select {
 }
 
 /* Základní nastavení stránky */
+html,
 body {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     background-color: var(--color-bg-page);
     color: var(--color-text-main);
     font-family: var(--font-body);
     font-size: 16px; /* 1rem */
+}
+
+main {
+    flex: 1;
 }
 
 /* Typography Defaults */
