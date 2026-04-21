@@ -4,6 +4,9 @@ import cz.ufol.app.match.ZapasRepository;
 import cz.ufol.app.season.RocnikRepository;
 import cz.ufol.app.team.TymRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -22,7 +25,15 @@ public class AdminDashboardController {
     private final RocnikRepository rocnikRepository;
 
     @GetMapping
-    @Operation(summary = "Admin dashboard", description = "Přehled statistik ligy")
+    @Operation(summary = "Admin dashboard", description = "Přehled statistik ligy a rychle akce")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Úspěšně vyrenderovaná HTML stránka",
+            content = @Content(
+                    mediaType = "text/html",
+                    schema = @Schema(type = "string")
+            )
+    )
     public String dashboard(Model model) {
         long zapasyBezVysledku = zapasRepository.findAll()
                 .stream().filter(z -> !z.isOdehran()).count();
