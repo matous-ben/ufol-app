@@ -1,10 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Zápasy | UFoL Admin</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+          rel="stylesheet">
 </head>
-<body>
-$END$
+<body class="admin-body">
+
+<div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar__brand">
+            <img th:src="@{/images/logo.svg}" alt="UFoL" class="admin-sidebar__logo">
+            <div>
+                <div class="admin-sidebar__title">UFoL</div>
+                <div class="admin-sidebar__subtitle">Administrace</div>
+            </div>
+        </div>
+
+        <nav class="admin-sidebar__nav">
+            <a th:href="@{/admin}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'dashboard'} ? ' admin-nav__item--active'">
+                Přehled
+            </a>
+            <a th:href="@{/admin/zapasy}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'zapasy'} ? ' admin-nav__item--active'">
+                Zápasy
+            </a>
+            <a th:href="@{/admin/tymy}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'tymy'} ? ' admin-nav__item--active'">
+                Týmy
+            </a>
+            <a th:href="@{/admin/rocniky}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'rocniky'} ? ' admin-nav__item--active'">
+                Ročníky
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main content -->
+    <div class="admin-main">
+
+        <!-- Top bar -->
+        <header class="admin-topbar">
+            <div class="admin-topbar__user">
+                <div class="admin-topbar__avatar">A</div>
+                <div>
+                    <div class="admin-topbar__name">Admin</div>
+                    <div class="admin-topbar__email"
+                         th:text="${#authentication.name}">admin@ufol.cz</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="admin-topbar__logout">
+                    Odhlásit se
+                </button>
+            </form>
+        </header>
+
+        <!-- Page content -->
+        <div class="admin-content">
+            <h1 class="admin-page-title">Přehled</h1>
+            <p class="admin-page-subtitle">Vítejte v administraci Univerzitní fotbalové ligy</p>
+        </div>
+
+    </div>
+</div>
+
 </body>
 </html>
