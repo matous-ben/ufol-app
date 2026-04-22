@@ -37,11 +37,13 @@ public class SecurityConfig {
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
                         .permitAll()
                 )
                 .sessionManagement(session -> session
-                        .invalidSessionUrl("/login")
+                        .invalidSessionUrl("/login?sessionExpired") // Kdyz vyprsi casovy limit (15 min)
                 );
 
         return http.build();

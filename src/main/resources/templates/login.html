@@ -30,6 +30,10 @@
                 Nesprávný e-mail nebo heslo.
             </div>
 
+            <div th:if="${param.sessionExpired}" class="login-error">
+                Vaše relace vypršela. Přihlaste se prosím znovu.
+            </div>
+
             <form th:action="@{/login}" method="post">
                 <div class="form-group">
                     <label for="username">E-mail</label>

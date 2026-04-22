@@ -60,8 +60,6 @@ public class StandingsService {
             Tym domaci = zapas.getDomaciTym();
             Tym hoste = zapas.getHosteTym();
 
-            // Zajistime ze oba tymy maji zapis v mape statistik
-            // int[] layout: [odehrane, vyhry, remizy, prohry, vstreleneGoly, obdrzeneGoly]
             stats.putIfAbsent(domaci, new TeamStats());
             stats.putIfAbsent(hoste, new TeamStats());
 
