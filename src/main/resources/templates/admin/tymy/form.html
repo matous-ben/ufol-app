@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tým | UFoL Admin</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar__brand">
+            <img th:src="@{/images/logo.svg}" alt="UFoL" class="admin-sidebar__logo">
+            <div>
+                <div class="admin-sidebar__title">UFoL</div>
+                <div class="admin-sidebar__subtitle">Administrace</div>
+            </div>
+        </div>
+        <nav class="admin-sidebar__nav">
+            <a th:href="@{/admin}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'dashboard'} ? ' admin-nav__item--active'">
+                Přehled
+            </a>
+            <a th:href="@{/admin/zapasy}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'zapasy'} ? ' admin-nav__item--active'">
+                Zápasy
+            </a>
+            <a th:href="@{/admin/tymy}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'tymy'} ? ' admin-nav__item--active'">
+                Týmy
+            </a>
+            <a th:href="@{/admin/rocniky}"
+               class="admin-nav__item"
+               th:classappend="${activePage == 'rocniky'} ? ' admin-nav__item--active'">
+                Ročníky
+            </a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div class="admin-topbar__user">
+                <div class="admin-topbar__avatar">A</div>
+                <div>
+                    <div class="admin-topbar__name">Admin</div>
+                    <div class="admin-topbar__email" th:text="${#authentication.name}">admin@ufol.cz</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="admin-topbar__logout">Odhlásit se</button>
+            </form>
+        </header>
+
+        <div class="admin-content">
+            <div class="admin-list-header">
+                <h1 class="admin-page-title"
+                    th:text="${tym.id != null} ? 'Upravit tým' : 'Nový tým'">Tým</h1>
+                <a th:href="@{/admin/tymy}" class="admin-back-link">← Zpět na seznam</a>
+            </div>
+
+            <div class="admin-form-card">
+                <form th:action="${tym.id != null} ? @{/admin/tymy/{id}/edit(id=${tym.id})} : @{/admin/tymy/novy}"
+                      method="post">
+
+                    <div class="form-group">
+                        <label for="nazev">Název týmu</label>
+                        <input type="text" id="nazev" name="nazev"
+                               th:value="${tym.nazev}"
+                               required placeholder="Název týmu">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="univerzitaId">Univerzita</label>
+                        <select id="univerzitaId" name="univerzitaId" required>
+                            <option value="">— Vyberte univerzitu —</option>
+                            <option th:each="uni : ${univerzity}"
+                                    th:value="${uni.id}"
+                                    th:text="${uni.nazev}"
+                                    th:selected="${tym.univerzita != null && tym.univerzita.id == uni.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group--checkbox">
+                        <input type="checkbox" id="aktivni" name="aktivni"
+                               th:checked="${tym.aktivni}">
+                        <label for="aktivni">Aktivní tým</label>
+                    </div>
+
+                    <div class="admin-form-actions">
+                        <button type="submit" class="btn">Uložit</button>
+                        <a th:href="@{/admin/tymy}" class="btn btn--outline">Zrušit</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -5,14 +5,11 @@
     <title>Týmy | UFoL Admin</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body class="admin-body">
-
 <div class="admin-layout">
 
-    <!-- Sidebar -->
     <aside class="admin-sidebar">
         <div class="admin-sidebar__brand">
             <img th:src="@{/images/logo.svg}" alt="UFoL" class="admin-sidebar__logo">
@@ -21,7 +18,6 @@
                 <div class="admin-sidebar__subtitle">Administrace</div>
             </div>
         </div>
-
         <nav class="admin-sidebar__nav">
             <a th:href="@{/admin}"
                class="admin-nav__item"
@@ -46,34 +42,52 @@
         </nav>
     </aside>
 
-    <!-- Main content -->
     <div class="admin-main">
-
-        <!-- Top bar -->
         <header class="admin-topbar">
             <div class="admin-topbar__user">
                 <div class="admin-topbar__avatar">A</div>
                 <div>
                     <div class="admin-topbar__name">Admin</div>
-                    <div class="admin-topbar__email"
-                         th:text="${#authentication.name}">admin@ufol.cz</div>
+                    <div class="admin-topbar__email" th:text="${#authentication.name}">admin@ufol.cz</div>
                 </div>
             </div>
             <form th:action="@{/logout}" method="post">
-                <button type="submit" class="admin-topbar__logout">
-                    Odhlásit se
-                </button>
+                <button type="submit" class="admin-topbar__logout">Odhlásit se</button>
             </form>
         </header>
 
-        <!-- Page content -->
-        <div class="admin-content">
-            <h1 class="admin-page-title">Přehled</h1>
-            <p class="admin-page-subtitle">Vítejte v administraci Univerzitní fotbalové ligy</p>
+        <!-- Simple form — just two number inputs -->
+        <div class="admin-form-card">
+            <div th:if="${error}" class="admin-alert admin-alert--error" th:text="${error}"></div>
+
+            <div class="match-result-display">
+                <span th:text="${zapas.domaciTym.univerzita.zkratka}" class="result-team">Domácí</span>
+                <span class="result-vs">vs</span>
+                <span th:text="${zapas.hosteTym.univerzita.zkratka}" class="result-team">Hosté</span>
+            </div>
+
+            <form th:action="@{/admin/zapasy/{id}/vysledek(id=${zapas.id})}" method="post">
+                <div class="result-inputs">
+                    <div class="form-group">
+                        <label th:text="${zapas.domaciTym.univerzita.zkratka}">Domácí</label>
+                        <input type="number" name="domaciSkore" min="0"
+                               th:value="${zapas.domaciSkore}" required>
+                    </div>
+                    <span class="result-separator">:</span>
+                    <div class="form-group">
+                        <label th:text="${zapas.hosteTym.univerzita.zkratka}">Hosté</label>
+                        <input type="number" name="hosteSkore" min="0"
+                               th:value="${zapas.hosteSkore}" required>
+                    </div>
+                </div>
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn">Uložit výsledek</button>
+                    <a th:href="@{/admin/zapasy}" class="btn btn--outline">Zrušit</a>
+                </div>
+            </form>
         </div>
 
     </div>
 </div>
-
 </body>
 </html>

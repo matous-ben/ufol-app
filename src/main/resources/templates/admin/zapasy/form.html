@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Nový zápas | UFoL Admin</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body class="admin-body">
+<div class="admin-layout">
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div>Nový zápas</div>
+            <form th:action="@{/logout}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="admin-topbar__logout">Odhlásit se</button>
+            </form>
+        </header>
+
+        <div class="admin-content">
+            <h1 class="admin-page-title">Přidat zápas</h1>
+
+            <div th:if="${error}" class="admin-alert admin-alert--error" th:text="${error}"></div>
+            <div th:if="${success}" class="admin-alert admin-alert--success" th:text="${success}"></div>
+
+            <form th:action="@{/admin/zapasy/novy}" method="post" class="admin-form-card">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                <div class="form-group">
+                    <label for="domaciTymId">Domácí tým</label>
+                    <select id="domaciTymId" name="domaciTymId" required>
+                        <option value="">-- vyberte --</option>
+                        <option th:each="tym : ${tymy}" th:value="${tym.id}" th:text="${tym.univerzita.zkratka}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="hosteTymId">Hostující tým</label>
+                    <select id="hosteTymId" name="hosteTymId" required>
+                        <option value="">-- vyberte --</option>
+                        <option th:each="tym : ${tymy}" th:value="${tym.id}" th:text="${tym.univerzita.zkratka}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="rocnikId">Ročník</label>
+                    <select id="rocnikId" name="rocnikId" required>
+                        <option value="">-- vyberte --</option>
+                        <option th:each="rocnik : ${rocniky}" th:value="${rocnik.id}" th:text="${rocnik.nazev}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mistoKonaniId">Místo konání</label>
+                    <select id="mistoKonaniId" name="mistoKonaniId">
+                        <option value="">-- bez místa --</option>
+                        <option th:each="misto : ${mistaKonani}" th:value="${misto.id}" th:text="${misto.nazev}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="datumCas">Datum a čas</label>
+                    <input id="datumCas" name="datumCas" type="datetime-local">
+                </div>
+
+                <div class="admin-form-actions">
+                    <button type="submit" class="btn">Uložit zápas</button>
+                    <a th:href="@{/admin/zapasy}" class="btn btn--outline">Zrušit</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
