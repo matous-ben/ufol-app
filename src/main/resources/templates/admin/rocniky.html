@@ -1,66 +1,20 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <title>Ročníky | UFoL Admin</title>
-  <link rel="stylesheet" th:href="@{/css/main.css}">
-  <link rel="stylesheet" th:href="@{/css/admin.css}">
-  <link rel="icon" th:href="@{/images/favicon-ufol.svg}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-        rel="stylesheet">
-</head>
+
+<!-- Shared head fragment -->
+<head th:replace="~{fragments/admin-layout :: head(title='Dashboard | UFoL Admin')}"></head>
 <body class="admin-body">
 
 <div class="admin-layout">
 
-  <aside class="admin-sidebar">
-    <div class="admin-sidebar__brand">
-      <img th:src="@{/images/logo.svg}" alt="UFoL" class="admin-sidebar__logo">
-      <div>
-        <div class="admin-sidebar__title">UFoL</div>
-        <div class="admin-sidebar__subtitle">Administrace</div>
-      </div>
-    </div>
+  <!-- Sidebar fragment -->
+  <aside th:replace="~{fragments/admin-layout :: sidebar}"></aside>
 
-    <nav class="admin-sidebar__nav">
-      <a th:href="@{/admin}"
-         class="admin-nav__item"
-         th:classappend="${activePage == 'dashboard'} ? ' admin-nav__item--active'">
-        Přehled
-      </a>
-      <a th:href="@{/admin/zapasy}"
-         class="admin-nav__item"
-         th:classappend="${activePage == 'zapasy'} ? ' admin-nav__item--active'">
-        Zápasy
-      </a>
-      <a th:href="@{/admin/tymy}"
-         class="admin-nav__item"
-         th:classappend="${activePage == 'tymy'} ? ' admin-nav__item--active'">
-        Týmy
-      </a>
-      <a th:href="@{/admin/rocniky}"
-         class="admin-nav__item"
-         th:classappend="${activePage == 'rocniky'} ? ' admin-nav__item--active'">
-        Ročníky
-      </a>
-    </nav>
-  </aside>
-
+  <!-- Main content -->
   <div class="admin-main">
 
-    <header class="admin-topbar">
-      <div class="admin-topbar__user">
-        <div class="admin-topbar__avatar">A</div>
-        <div>
-          <div class="admin-topbar__name">Admin</div>
-          <div class="admin-topbar__email" th:text="${#authentication.name}">admin@ufol.cz</div>
-        </div>
-      </div>
-      <form th:action="@{/logout}" method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-        <button type="submit" class="admin-topbar__logout">Odhlásit se</button>
-      </form>
-    </header>
+    <!-- Top bar fragment -->
+    <header th:replace="~{fragments/admin-layout :: topbar}"></header>
 
     <div class="admin-content">
 
