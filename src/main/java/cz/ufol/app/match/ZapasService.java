@@ -33,4 +33,14 @@ public class ZapasService {
         return zapasRepository
                 .findByRocnikAndOdehranTrueOrderByDatumCasDesc(aktivniRocnik.get());
     }
+
+    public List<Zapas> findTop3Naplanovane() {
+        Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
+        if (aktivniRocnik.isEmpty()) return Collections.emptyList();
+        return zapasRepository
+                .findByRocnikAndOdehranFalseOrderByDatumCasAsc(aktivniRocnik.get())
+                .stream()
+                .limit(3)
+                .toList();
+    }
 }

@@ -33,6 +33,7 @@ public class ZapasController {
     public String zapasy(Model model) {
         model.addAttribute("naplanovane", zapasService.findNaplanovane());
         model.addAttribute("odehrane", zapasService.findOdehrane());
+        model.addAttribute("upcomingMatches", zapasService.findTop3Naplanovane());
         model.addAttribute("activePage", "zapasy");
         return "public/zapasy";
     }

@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface RocnikRepository extends JpaRepository<Rocnik, Long> {
     Optional<Rocnik> findByAktivniTrue();
     List<Rocnik> findAllByOrderByRokOdDesc();
+    boolean existsByNazevIgnoreCase(String nazev);
 }

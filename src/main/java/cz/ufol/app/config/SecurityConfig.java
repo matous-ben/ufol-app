@@ -27,7 +27,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/"
                         ).permitAll()
                         .requestMatchers("/admin/**").authenticated()
-                        .anyRequest().permitAll()
+                        .anyRequest().denyAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
