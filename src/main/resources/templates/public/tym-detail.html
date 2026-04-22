@@ -1,10 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+          th:content="'Detail týmu ' + ${tym.univerzita.zkratka} + ' v Univerzitní fotbalové lize UFoL'">
+    <title th:text="${tym.univerzita.zkratka} + ' | UFoL'">Tým | UFoL</title>
+    <link rel="icon" th:href="@{/images/favicon-ufol.png}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+              rel="stylesheet">
+    </noscript>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <script th:src="@{/js/script.js}" defer></script>
 </head>
 <body>
-$END$
+
+<header th:replace="~{fragments/layout :: header}"></header>
+
+<main>
+    <section class="team-detail">
+        <div class="team-detail__content">
+
+            <!-- Back link -->
+            <a th:href="@{/tymy}" class="team-detail__back">← Zpět na přehled týmů</a>
+
+            <!-- Team hero card -->
+            <div class="team-detail__hero">
+                <div class="team-detail__logo-wrapper">
+                    <img class="team-detail__logo"
+                         th:src="@{'/images/teams/' + ${tym.univerzita.logoFile}}"
+                         th:alt="${tym.nazev} + ' logo'"
+                         loading="lazy">
+                </div>
+                <div class="team-detail__info">
+                    <h1 class="team-detail__name" th:text="${tym.univerzita.zkratka}">UHK</h1>
+                    <p class="team-detail__university" th:text="${tym.univerzita.nazev}">
+                        Univerzita Hradec Králové
+                    </p>
+
+                    <span class="team-detail__status team-detail__status--active"
+                          th:if="${tym.aktivni}">
+                        Aktivní tým
+                    </span>
+                    <span class="team-detail__status team-detail__status--inactive"
+                          th:if="${!tym.aktivni}">
+                        Neaktivní tým
+                    </span>
+                </div>
+            </div>
+
+            <!-- Roster section -->
+            <div class="team-detail__section">
+                <h2 class="team-detail__section-title">Soupiska hráčů</h2>
+
+                <!-- Active roster -->
+                <div th:if="${not #lists.isEmpty(hraci)}" class="standings__table-content">
+                    <table class="league-table">
+                        <thead>
+                        <tr class="league-table__header-row">
+                            <th class="league-table__th">#</th>
+                            <th class="league-table__th league-table__th--team">Hráč</th>
+                            <th class="league-table__th">Datum narození</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="registrace, stat : ${hraci}"
+                            class="league-table__row"
+                            th:classappend="${stat.even ? 'league-table__row--zebra' : ''}">
+
+                            <td class="league-table__cell league-table__cell--pos"
+                                th:text="${stat.count}">1</td>
+
+                            <td class="league-table__cell league-table__cell--team">
+                                <div class="league-table__team-content">
+                                        <span class="league-table__name"
+                                              th:text="${registrace.hrac.prijmeni + ' ' + registrace.hrac.jmeno}">
+                                            Novák Jan
+                                        </span>
+                                </div>
+                            </td>
+
+                            <td class="league-table__cell"
+                                th:text="${registrace.hrac.datumNarozeni != null ? #temporals.format(registrace.hrac.datumNarozeni, 'd. M. yyyy') : '—'}">
+                                1. 1. 2000
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty state -->
+                <div th:if="${#lists.isEmpty(hraci)}" class="team-detail__empty">
+                    <p>Soupiska pro aktuální ročník zatím není k dispozici.</p>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+
 </body>
 </html>

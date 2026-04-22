@@ -12,7 +12,6 @@
 
 <div class="admin-layout">
 
-  <!-- Sidebar -->
   <aside class="admin-sidebar">
     <div class="admin-sidebar__brand">
       <img th:src="@{/images/logo.svg}" alt="UFoL" class="admin-sidebar__logo">
@@ -46,32 +45,111 @@
     </nav>
   </aside>
 
-  <!-- Main content -->
   <div class="admin-main">
 
-    <!-- Top bar -->
     <header class="admin-topbar">
       <div class="admin-topbar__user">
         <div class="admin-topbar__avatar">A</div>
         <div>
           <div class="admin-topbar__name">Admin</div>
-          <div class="admin-topbar__email"
-               th:text="${#authentication.name}">admin@ufol.cz</div>
+          <div class="admin-topbar__email" th:text="${#authentication.name}">admin@ufol.cz</div>
         </div>
       </div>
       <form th:action="@{/logout}" method="post">
-        <button type="submit" class="admin-topbar__logout">
-          Odhlásit se
-        </button>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button type="submit" class="admin-topbar__logout">Odhlásit se</button>
       </form>
     </header>
 
-    <!-- Page content -->
     <div class="admin-content">
-      <h1 class="admin-page-title">Přehled</h1>
-      <p class="admin-page-subtitle">Vítejte v administraci Univerzitní fotbalové ligy</p>
-    </div>
 
+      <div class="admin-list-header">
+        <h1 class="admin-page-title">Ročníky</h1>
+      </div>
+
+      <div th:if="${success}" class="admin-alert admin-alert--success" th:text="${success}"></div>
+      <div th:if="${error}" class="admin-alert admin-alert--error" th:text="${error}"></div>
+
+      <div class="admin-form-card">
+        <h2 class="admin-section-title">Vytvořit nový ročník</h2>
+        <form th:action="@{/admin/rocniky/novy}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+          <div class="form-group">
+            <label for="nazev">Název ročníku</label>
+            <input id="nazev" name="nazev" type="text" placeholder="Např. 2026/2027" required>
+          </div>
+
+          <div class="form-group">
+            <label for="rokOd">Rok od</label>
+            <input id="rokOd" name="rokOd" type="number" min="2000" max="2100" required>
+          </div>
+
+          <div class="form-group">
+            <label for="rokDo">Rok do</label>
+            <input id="rokDo" name="rokDo" type="number" min="2000" max="2100" required>
+          </div>
+
+          <div class="admin-form-actions">
+            <button type="submit" class="btn">Vytvořit ročník</button>
+          </div>
+        </form>
+      </div>
+
+      <h2 class="admin-section-title">Seznam ročníků</h2>
+      <div class="admin-table-wrapper">
+        <table class="admin-table">
+          <thead>
+          <tr>
+            <th>Název</th>
+            <th>Rok od</th>
+            <th>Rok do</th>
+            <th>Stav</th>
+            <th>Akce</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="rocnik : ${rocniky}">
+            <td th:text="${rocnik.nazev}">2026/2027</td>
+            <td th:text="${rocnik.rokOd}">2026</td>
+            <td th:text="${rocnik.rokDo}">2027</td>
+            <td>
+              <span th:if="${rocnik.aktivni}" class="admin-badge admin-badge--success">Aktivní</span>
+              <span th:if="${!rocnik.aktivni}" class="admin-badge">Neaktivní</span>
+            </td>
+            <td class="admin-table__actions">
+              <form th:if="${!rocnik.aktivni}"
+                    th:action="@{/admin/rocniky/{id}/aktivovat(id=${rocnik.id})}"
+                    method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="admin-btn-edit">Aktivovat</button>
+              </form>
+
+              <form th:if="${rocnik.aktivni}"
+                    th:action="@{/admin/rocniky/{id}/archivovat(id=${rocnik.id})}"
+                    method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="admin-btn-delete">Archivovat</button>
+              </form>
+
+              <form th:if="${!rocnik.aktivni}"
+                    th:action="@{/admin/rocniky/{id}/smazat(id=${rocnik.id})}"
+                    method="post"
+                    onsubmit="return confirm('Opravdu chcete smazat tento ročník?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button type="submit" class="admin-btn-delete">Smazat</button>
+              </form>
+            </td>
+          </tr>
+
+          <tr th:if="${rocniky == null || #lists.isEmpty(rocniky)}">
+            <td colspan="5" class="admin-table__empty">Žádné ročníky zatím nejsou vytvořeny.</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
   </div>
 </div>
 

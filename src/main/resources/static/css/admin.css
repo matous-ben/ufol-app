@@ -135,6 +135,21 @@
     color: var(--color-accent);
 }
 
+.admin-sidebar__footer {
+    margin-top: auto;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-nav__item--public {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+}
+
+.admin-nav__item--public:hover {
+    color: rgba(255,255,255,0.8);
+}
+
 /* CONTENT */
 .admin-content {
     padding: 2rem;
@@ -277,4 +292,225 @@
     .admin-recent-matches {
         grid-template-columns: 1fr;
     }
+}
+
+/* LIST HEADER */
+.admin-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.admin-back-link {
+    color: var(--color-primary);
+    font-size: 0.9rem;
+}
+
+/* ALERTS */
+.admin-alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-card);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.admin-alert--success {
+    background: #f0fff4;
+    border: 1px solid var(--color-success);
+    color: #276749;
+}
+
+.admin-alert--error {
+    background: #fff5f5;
+    border: 1px solid var(--color-error);
+    color: #c53030;
+}
+
+/* TABLES */
+.admin-table-wrapper {
+    background: var(--color-bg-container);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow-x: auto;
+    margin-bottom: 2rem;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+}
+
+.admin-table th {
+    font-weight: 600;
+    color: var(--color-text-subtle);
+    background: var(--color-bg-light);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.admin-table__actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.admin-table__empty {
+    text-align: center;
+    color: var(--color-text-subtle);
+    padding: 2rem !important;
+}
+
+.admin-table__team {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-table__logo {
+    width: 1.5rem;
+    height: 1.5rem;
+    object-fit: contain;
+}
+
+/* ACTION BUTTONS */
+.admin-btn-edit {
+    padding: 0.3rem 0.7rem;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: none;
+    white-space: nowrap;
+}
+
+.admin-btn-edit:hover {
+    background: var(--color-primary-hover);
+    color: white;
+}
+
+.admin-btn-delete {
+    padding: 0.3rem 0.7rem;
+    background: var(--color-error);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border: none;
+}
+
+.admin-btn-delete:hover {
+    background: #c53030;
+}
+
+/* BADGES */
+.admin-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.admin-badge--green {
+    background: #f0fff4;
+    color: #276749;
+    border: 1px solid var(--color-success);
+}
+
+.admin-badge--red {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1px solid var(--color-error);
+}
+
+/* FORMS */
+.admin-form-card {
+    background: var(--color-bg-container);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    padding: 2rem;
+    max-width: 600px;
+}
+
+.admin-form-card select {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    font-size: 1rem;
+    background: var(--color-bg-container);
+}
+
+.admin-form-card select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.form-group--checkbox {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group--checkbox input {
+    width: auto;
+}
+
+.admin-form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* RESULT FORM */
+.match-result-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: var(--color-bg-page);
+    border-radius: var(--radius-card);
+}
+
+.result-team {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-heading);
+}
+
+.result-vs {
+    color: var(--color-text-subtle);
+    font-size: 1rem;
+}
+
+.result-inputs {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.result-separator {
+    font-size: 2rem;
+    font-weight: 700;
+    padding-bottom: 0.5rem;
+}
+
+.result-inputs input[type="number"] {
+    width: 80px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
 }
