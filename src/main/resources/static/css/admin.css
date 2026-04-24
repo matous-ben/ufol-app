@@ -500,10 +500,18 @@
         display: none;
     }
     .admin-stats {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
     }
     .admin-quick-actions,
     .admin-recent-matches {
         grid-template-columns: 1fr;
+    }
+
+    .admin-content {
+        padding: 1rem;
+    }
+
+    .admin-page-title {
+        font-size: 1.5rem;
     }
 }

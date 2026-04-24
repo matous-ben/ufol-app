@@ -964,7 +964,7 @@ a {
     }
     .footer__column { gap: 0.2rem; }
     .footer__heading { margin-bottom: 0.2rem; }
-    .footer__column--brand { order: 1; gap: 0; }
+    .footer__column--brand { order: 1; gap: 0.5rem; }
     .footer__logo { height: 2rem; }
 
     /* Detail Page */
