@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Týmy | UFoL Admin</title>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <link rel="icon" th:href="@{/images/favicon-ufol.svg}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-</head>
+
+<!-- Shared head fragment -->
+<head th:replace="~{fragments/admin-layout :: head(title='Zapsat výsledek')}"></head>
+
 <body class="admin-body">
 <div class="admin-layout">
 

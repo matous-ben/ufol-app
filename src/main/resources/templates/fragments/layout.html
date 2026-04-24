@@ -1,6 +1,44 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org">
 
+<!-- Define the head fragment for public pages -->
+<head th:fragment="head(title, description)">
+    <!-- Encodings & Viewport -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <!-- Dynamic SEO -->
+    <meta name="theme-color" content="#283e67" />
+    <meta name="description" th:content="${description}" />
+    <title th:text="${title + ' | UFoL'}">UFoL</title>
+
+    <!-- Open Graph for Social Media -->
+    <meta property="og:title" th:content="${title + ' | UFoL'}" />
+    <meta property="og:description" th:content="${description}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" th:content="@{/images/logo.svg}" />
+
+    <!-- Favicon -->
+    <link rel="icon" th:href="@{/images/favicon-ufol.svg}" type="image/svg+xml" />
+
+    <!-- Optimized font loading - non-blocking -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+          rel="stylesheet"
+          media="print"
+          onload="this.media='all'" />
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
+              rel="stylesheet" />
+    </noscript>
+
+    <!-- Common Styles and Scripts -->
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <script th:src="@{/js/script.js}" defer></script>
+</head>
+
 <!-- Define the header fragment -->
 <header th:fragment="header" class="header">
     <div class="header__content">
@@ -40,7 +78,7 @@
     <div class="footer__content">
         <div class="footer__column footer__column--brand">
             <a th:href="@{/}" class="footer__logo-link">
-                <img class="footer__logo" th:src="@{/images/logo.svg}" alt="UFoL Logo" loading="lazy">
+                <img class="footer__logo" th:src="@{/images/favicon-ufol.svg}" alt="UFoL Logo" loading="lazy">
             </a>
             <p class="footer__text">© 2025 Univerzitní fotbalová liga</p>
         </div>

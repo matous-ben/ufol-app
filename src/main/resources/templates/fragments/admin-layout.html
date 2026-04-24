@@ -4,11 +4,17 @@
 <!-- 1. Sdílená hlavička -->
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
-    <title th:text="${title}">UFoL Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#283e67">
+    <title th:text="${title + ' | UFoL Admin'}">UFoL Admin</title>
+
     <link rel="icon" th:href="@{/images/favicon-ufol.svg}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>

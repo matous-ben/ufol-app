@@ -1,22 +1,8 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Výsledky a program zápasů Univerzitní fotbalové ligy UFoL">
-    <title>Výsledky a program | UFoL</title>
-    <link rel="icon" th:href="@{/images/favicon-ufol.svg}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-          rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-              rel="stylesheet">
-    </noscript>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <script th:src="@{/js/script.js}" defer></script>
-</head>
+
+<head th:replace="~{fragments/layout :: head('Zápasy', 'Výsledky a program zápasů Univerzitní fotbalové ligy UFoL')}"></head>
+
 <body>
 
 <header th:replace="~{fragments/layout :: header}"></header>

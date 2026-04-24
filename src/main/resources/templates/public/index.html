@@ -1,35 +1,7 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="Univerzitní fotbalová liga - oficiální portál UFoL s aktuálními zápasy, tabulkou a týmy" />
 
-        <title>Univerzitní fotbalová liga | UFoL</title>
-        <link rel="icon" th:href="@{/images/favicon-ufol.svg}" />
-
-        <!-- Optimized font loading - non-blocking -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-            rel="stylesheet"
-            media="print"
-            onload="this.media='all'"
-        />
-        <noscript>
-            <link
-                href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-                rel="stylesheet"
-            />
-        </noscript>
-        
-        <!-- Main styles -->
-        <link rel="stylesheet" th:href="@{/css/main.css}" />
-        
-        <!-- JavaScript for responsive menu navigation -->
-        <script th:src="@{/js/script.js}" defer></script>
-    </head>
+<head th:replace="~{fragments/layout :: head('Univerzitní fotbalová liga', 'Univerzitní fotbalová liga - oficiální portál UFoL s aktuálními zápasy, tabulkou a týmy')}"></head>
 
     <body>
 
