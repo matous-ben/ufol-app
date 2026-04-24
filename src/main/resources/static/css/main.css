@@ -1,50 +1,35 @@
 /* =========================================
-    CSS Reset - inlined for performance (no @import blocking)
+   1. RESET & VARIABLES
    ========================================= */
-*,
-*::before,
-*::after {
-    box-sizing: border-box; /* Klíčové pro responzivitu - padding nezvětšuje velikost elementu */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-
-img,
-picture,
-video,
-canvas,
-svg {
+img, picture, video, canvas, svg {
     display: block;
-    max-width: 100%; /* Obrázky nikdy nepřetečou svůj kontejner */
+    max-width: 100%;
 }
 
-input,
-button,
-textarea,
-select {
-    font: inherit; /* Formulářové prvky dědí font */
+input, button, textarea, select {
+    font: inherit;
 }
 
 * {
-    -webkit-tap-highlight-color: transparent; /* Odstranění modrého prokliku u odkazů */
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* Design System Variables - inlined for performance */
 :root {
-    /* --- Colors --- */
-    
-    /* Primary */
+    /* Colors - Primary */
     --color-primary: #283e67;
     --color-primary-hover: #5373b5;
     --color-primary-active: #1f2e5a;
-    
-    /* Accent */
+    /* Colors - Accent */
     --color-accent: #c33734;
     --color-accent-hover: #e26966;
     --color-accent-active: #a32b29;
-    
-    /* Neutrals */
+    /* Colors - Neutrals */
     --color-text-main: #1a202c;
     --color-text-subtle: #718096;
     --color-border: #e2e8f0;
@@ -53,25 +38,24 @@ select {
     --color-bg-light: #f8fafc;
     --color-text-light: #edf2f7;
     --color-white: #ffffff;
-    
-    /* System */
+    /* Colors - System */
     --color-success: #48bb78;
     --color-error: #f56565;
-    
-    /* --- TYPOGRAFIE --- */
+
+    /* Typography */
     --font-heading: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-body: "Inter",  -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    
-    /* --- SPACING & LAYOUT --- */
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    /* Spacing & Layout */
     --radius-card: 8px;
     --shadow-card: 0 2px 8px rgba(26, 32, 44, 0.05);
-    
-    --container-width-desktop: 1200px; /* Maximální šířka obsahu */
+    --container-width-desktop: 1200px;
 }
 
-/* Základní nastavení stránky */
-html,
-body {
+/* =========================================
+   2. BASE STYLES
+   ========================================= */
+html, body {
     height: 100%;
 }
 
@@ -82,17 +66,14 @@ body {
     background-color: var(--color-bg-page);
     color: var(--color-text-main);
     font-family: var(--font-body);
-    font-size: 16px; /* 1rem */
+    font-size: 16px;
 }
 
 main {
     flex: 1;
 }
 
-/* Typography Defaults */
-h1,
-h2,
-h3 {
+h1, h2, h3 {
     font-family: var(--font-heading);
     font-weight: 700;
     color: var(--color-text-main);
@@ -105,9 +86,122 @@ a {
 }
 
 /* =========================================
-    HEADER
+   3. REUSABLE COMPONENTS
    ========================================= */
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-accent);
+    border-radius: var(--radius-card);
+    color: var(--color-white);
+    font-weight: 600;
+    transition: all 0.3s ease-out;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
 
+.btn:hover {
+    background-color: var(--color-accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(195, 55, 52, 0.3);
+}
+
+.btn:active {
+    background-color: var(--color-accent-active);
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.btn--full {
+    width: 100%;
+    padding: 0.85rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+}
+
+.btn--outline {
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    padding: 0.4rem 1rem;
+}
+
+.btn--outline:hover {
+    background: var(--color-primary);
+    color: var(--color-white);
+    transform: none;
+    box-shadow: none;
+}
+
+.btn--login {
+    padding: 0.3rem 1rem;
+    background-color: var(--color-white);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.btn--login:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    transform: none;
+    box-shadow: none;
+}
+
+/* Forms */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--color-text-main);
+}
+
+.form-group input {
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    background: var(--color-bg-container);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* Common Section Headers */
+.section__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.section__header a {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-primary);
+    transition: all 0.3s ease-out;
+}
+
+.section__header a:hover {
+    color: var(--color-primary-hover);
+}
+
+.section__header a:active {
+    color: var(--color-primary-active);
+}
+
+/* =========================================
+   4. LAYOUTS (Header & Footer)
+   ========================================= */
 .header {
     padding: 0.5rem 1.5rem;
     background-color: var(--color-bg-container);
@@ -124,7 +218,6 @@ a {
     height: 40px;
     width: auto;
     max-width: 100%;
-    display: block;
     transition: opacity 0.2s ease-in-out;
 }
 
@@ -132,8 +225,7 @@ a {
     opacity: 0.8;
 }
 
-/* NAVIGATION */
-
+/* Navigation */
 .nav__hamburger {
     display: none;
     cursor: pointer;
@@ -146,10 +238,21 @@ a {
     align-items: center;
 }
 
+.nav__item--login {
+    margin-left: auto;
+}
+
 .nav__link {
-    /* Vymezí místo pro border ve stavu :hover */
     border-bottom: 1px solid transparent;
     transition: all 0.3s ease;
+}
+
+.nav__link:hover {
+    color: var(--color-primary-hover);
+}
+
+.nav__link:active {
+    color: var(--color-primary-active);
 }
 
 .nav__link--active {
@@ -166,18 +269,7 @@ a {
     border-bottom-color: var(--color-primary-active);
 }
 
-.nav__link:hover {
-    color: var(--color-primary-hover);
-}
-
-.nav__link:active {
-    color: var(--color-primary-active);
-}
-
-/* =========================================
-    FOOTER
-   ========================================= */
-
+/* Footer */
 .footer {
     background-color: var(--color-primary);
     color: var(--color-text-light);
@@ -189,7 +281,6 @@ a {
     max-width: var(--container-width-desktop);
     margin: 0 auto;
     display: flex;
-    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
@@ -207,8 +298,6 @@ a {
 .footer__logo {
     height: 40px;
     width: auto;
-    max-width: 100%;
-    display: block;
     transition: opacity 0.2s ease-in-out;
 }
 
@@ -240,19 +329,17 @@ a {
 }
 
 /* =========================================
-   HOME PAGE
+   5. PAGES & SECTIONS
    ========================================= */
 
-/* HERO SECTION */
-
+/* Hero */
 .hero {
     min-height: 380px;
     padding: 2rem 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-        url("../images/football_pitch.webp");
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url("../images/football_pitch.webp");
     background-size: cover;
     background-position: bottom;
 }
@@ -261,7 +348,6 @@ a {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: 2rem;
 }
 
@@ -276,72 +362,41 @@ a {
     font-size: 1rem;
 }
 
-.btn {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--color-accent);
-    border-radius: var(--radius-card);
-    color: var(--color-white);
-    font-weight: 600;
-    transition: all 0.3s ease-out;
-}
-
-.btn:hover {
-    background-color: var(--color-accent-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(195, 55, 52, 0.3);
-}
-
-.btn:active {
-    background-color: var(--color-accent-active);
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-/* SECTION HEADERS */
-
-.section__header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-}
-
-.section__header a {
-    font-family: var(--font-body);
-    font-size: 1rem;
-    color: var(--color-primary);
-    transition: all 0.3s ease-out;
-}
-
-.section__header a:hover {
-    color: var(--color-primary-hover);
-}
-
-.section__header a:active {
-    color: var(--color-primary-active);
-}
-
-/* UPCOMING MATCHES */
-
-.upcoming-matches__content {
+/* Match Wrappers */
+.upcoming-matches__content, .matches__content {
     padding: 4rem 2rem 0 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    width: 100%;
     max-width: var(--container-width-desktop);
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
 }
 
-.upcoming-matches__list {
+.matches__content {
+    padding-top: 2rem;
+}
+
+.matches__header {
+    text-align: center;
+}
+
+.upcoming-matches__list, .matches__group {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
+.matches__group-title {
+    font-size: 1.25rem;
+    border-left: 4px solid var(--color-accent);
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Match Cards */
 .match-card {
-    padding: 2rem 2rem;
+    padding: 2rem;
     background-color: var(--color-bg-container);
     border-radius: var(--radius-card);
     border: 1px solid var(--color-border);
@@ -354,9 +409,7 @@ a {
     display: flex;
     align-items: center;
     gap: 1rem;
-
     flex: 1;
-    flex-basis: 0;
 }
 
 .match-card__team:first-child {
@@ -375,27 +428,47 @@ a {
 
 .match-card__name {
     font-size: 1rem;
-    color: var(--color-text-main);
     font-family: var(--font-heading);
     font-weight: 700;
 }
 
-.match-card__info {
+.match-card__info, .match-card__meta {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.match-card__score {
+.match-card__time {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.match-card__date {
+    font-size: 0.85rem;
+    color: var(--color-text-subtle);
+}
+
+.match-card__status {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-text-subtle);
+    margin-top: 0.25rem;
+}
+
+.match-card__score, .match-card__score--final {
     font-size: 1.5rem;
     font-weight: 600;
     font-family: var(--font-heading);
 }
 
-/* STANDINGS */
+.match-card__score--final {
+    font-size: 2rem;
+}
 
+/* Standings & Unified Tables */
 .standings__content {
-    padding: 2rem 2rem;
+    padding: 2rem;
     max-width: var(--container-width-desktop);
     margin: 0 auto;
     display: flex;
@@ -403,13 +476,9 @@ a {
     gap: 1.5rem;
 }
 
-.league-table--mini {
-    width: 100%;
-    min-width: 300px;
-    border-collapse: collapse;
+.standings__header {
+    text-align: center;
 }
-
-/* Sdílené styly pro tabulku */
 
 .standings__table-content {
     width: 100%;
@@ -426,8 +495,20 @@ a {
     color: var(--color-text-subtle);
 }
 
-.league-table__th,
-.league-table__cell {
+.league-table, .league-table--mini {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.league-table {
+    min-width: 700px;
+}
+
+.league-table--mini {
+    min-width: 300px;
+}
+
+.league-table__th, .league-table__cell {
     padding: 1rem;
     text-align: center;
     border-bottom: 1px solid var(--color-border);
@@ -440,14 +521,12 @@ a {
     background-color: var(--color-bg-light);
 }
 
-.league-table__th--pos,
-.league-table__cell--pos {
+.league-table__th--pos, .league-table__cell--pos {
     width: 3rem;
     color: var(--color-text-subtle);
 }
 
-.league-table__th--team,
-.league-table__cell--team {
+.league-table__th--team, .league-table__cell--team {
     text-align: left;
 }
 
@@ -471,38 +550,7 @@ a {
     background-color: var(--color-bg-page);
 }
 
-/* =========================================
-   TABULKA
-   ========================================= */
-.standings__header {
-    text-align: center;
-}
-
-.league-table {
-    width: 100%;
-    min-width: 700px;
-    border-collapse: collapse;
-}
-
-/* =========================================
-   STRÁNKA ZÁPASY (MATCHES)
-   ========================================= */
-
-.matches__content {
-    padding: 2rem 2rem;
-    width: 100%;
-    max-width: var(--container-width-desktop);
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.matches__header {
-    text-align: center;
-}
-
-/* Filters (Přepínače) */
+/* Filter Navigace */
 .matches__filters {
     display: flex;
     justify-content: center;
@@ -529,83 +577,19 @@ a {
 .filter-btn--active {
     background-color: var(--color-primary);
     border-color: var(--color-primary);
-    color: white;
+    color: var(--color-white);
 }
 
 .filter-btn--active:hover {
-    color: white; /* Udržet bílou na aktivním */
+    color: var(--color-white);
 }
 
-/* Stylování skupin zápasů */
-.matches__group {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.matches__group-title {
-    font-size: 1.25rem;
-    color: var(--color-text-main);
-    border-left: 4px solid var(--color-accent);
-    padding-left: 1rem;
-}
-
-/* Vylepšení Match Card pro detailní pohled */
-
-.match-card__meta {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.match-card__time {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--color-text-main);
-}
-
-.match-card__date {
-    font-size: 0.85rem;
-    color: var(--color-text-subtle);
-}
-
-.match-card__status {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--color-text-subtle);
-    margin-top: 0.25rem;
-}
-
-.match-card__score--final {
-    font-size: 2rem; /* Větší skóre pro odehrané */
-    color: var(--color-text-main);
-}
-
-/* Tlačítka uvnitř karty */
-.btn--outline {
-    background: transparent;
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary);
-    padding: 0.4rem 1rem;
-    cursor: pointer;
-}
-
-.btn--outline:hover {
-    background: var(--color-primary);
-    color: white;
-}
-
-/* =========================================
-   TÝMY
-   ========================================= */
+/* Teams Framework */
 .teams__content {
-    padding: 2rem 2rem;
+    padding: 2rem;
     width: 100%;
     max-width: var(--container-width-desktop);
     margin: 0 auto;
-
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -616,48 +600,35 @@ a {
 }
 
 .teams__grid {
-    /* Grid Layout */
     display: grid;
-    /* 3 sloupce */
-    grid-template-columns: repeat(3, 1fr); 
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
 }
 
-/* Karta Týmu */
 .team-card {
-    position: relative; 
-    
+    position: relative;
     background-color: var(--color-bg-container);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-card);
-    
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    
-    /* Animace při najetí myší */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Hover efekt na celou kartu */
 .team-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-card);
     border-color: var(--color-primary-hover);
 }
 
-/* Overlay Link */
 .team-card__overlay-link {
-    /* Roztáhne odkaz přes celou kartu */
     position: absolute;
-    inset: 0; /* top:0, right:0, bottom:0, left:0 */
-    z-index: 1; /* Musí být nad obsahem */
+    inset: 0;
+    z-index: 1;
     cursor: pointer;
 }
 
-/* --- Části Karty --- */
-
-/* Horní část s logem */
 .team-card__header {
     background-color: var(--color-bg-light);
     padding: 2rem;
@@ -668,18 +639,16 @@ a {
 }
 
 .team-card__logo {
-    width: 5rem; /* Velké logo */
+    width: 5rem;
     height: 5rem;
     object-fit: contain;
-    /* Jemný stín pod logem pro hloubku */
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
-/* Tělo s textem */
 .team-card__body {
     padding: 1.5rem;
     text-align: center;
-    flex: 1; /* Roztáhne se, aby patička byla vždy dole */
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -687,7 +656,6 @@ a {
 
 .team-card__acronym {
     font-size: 1.5rem;
-    color: var(--color-text-main);
 }
 
 .team-card__name {
@@ -700,13 +668,11 @@ a {
     font-size: 0.85rem;
     color: var(--color-primary);
     font-weight: 600;
-    
     display: flex;
     justify-content: center;
     gap: 0.5rem;
 }
 
-/* Footer s vizuálním odkazem */
 .team-card__footer {
     padding: 1rem;
     text-align: center;
@@ -718,376 +684,14 @@ a {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--color-primary);
-    
     transition: color 0.3s ease;
 }
 
-/* Změní se barva odkazu dole */
 .team-card:hover .team-card__link {
     color: var(--color-accent);
 }
 
-/* Styl pro login tlačítko v menu */
-.login-icon {
-    height: 2rem;
-}
-
-.nav__item--login {
-    margin-left: auto; /* Posune login na konec menu (desktop) */
-}
-
-.btn--login {
-    padding: 0.3rem 1rem;
-    background-color: white; /* Kontrastní tlačítko v hlavičce */
-    color: var(--color-primary);
-    border: 2px solid var(--color-primary);
-    cursor: pointer
-}
-
-.btn--login:hover {
-    background-color: var(--color-primary);
-    color: white;
-}
-
-/* =========================================
-   RESPONSIVE DESIGN (MEDIA QUERIES)
-   ========================================= */
-
-/* TABLET */
-@media (max-width: 1024px) {
-    :root {
-        --container-width-desktop: 100%;
-    }
-
-    .teams__grid {
-        grid-template-columns: repeat(2, 1fr); 
-    }
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-    .section__header h2{
-        font-size: 1rem;
-    }
-
-    .section__header a{
-        font-size: 0.7rem;
-    }
-
-    h1 {
-        font-size: 1.5rem;
-    }
-    /* NAVIGACE */
-    /* Zámek scrollování pro otevřené menu */
-    body.no-scroll {
-        overflow: hidden;
-    }
-    /* Menu pozicováno fixně mimo obrazovku na pravé straně, defaultně není vidět,
-        objeví se přes celou obrazovku při kliknutí na button */
-    .nav__menu {
-        display: flex;
-        flex-direction: column;
-        justify-content:space-evenly;
-        align-items: center;
-
-        position: fixed;
-        top: 0;
-        right: -100%;
-        height: 100vh;
-        width: 100%;
-
-        background-color: var(--color-primary);
-        opacity: 0;
-        transition: right 0.3s ease, opacity 0.3s ease;
-        z-index: 90;
-    }
-
-    /* Změna pozicování při rozkliknutí menu */
-    .nav__menu--open {
-        right: 0;
-        opacity: 1;
-    }
-
-    .nav__link {
-        font-size: 1.5rem;
-        color: var(--color-white);
-    }
-
-    .nav__link--active {
-        border-block-color: var(--color-white);
-    }
-
-    .nav__item--login {
-        margin-left: 0;
-        margin-top: 1rem;
-    }
-    
-    .btn--login {
-        background-color: white;
-        color: var(--color-primary);
-    }
-
-    .btn--login:hover {
-        border: 1px solid var(--color-white);
-        box-shadow: none;
-    }
-
-    .nav__hamburger {
-        height: 40px;
-        width: 40px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        border: none;
-        background: transparent;
-        z-index: 100;
-        position: relative;
-    }
-
-    /* Změna hamburger ikonky na křížek s animací */
-    .nav__cross .nav__bar:nth-child(1) {
-        transform: translateY(11px) rotate(45deg);
-    }
-
-    .nav__cross .nav__bar:nth-child(2) {
-        opacity: 0;
-        transform: scaleX(0);
-    }
-
-    .nav__cross .nav__bar:nth-child(3) {
-        transform: translateY(-11px) rotate(-45deg);
-    }
-
-    .nav__cross .nav__bar:nth-child(1),
-    .nav__cross .nav__bar:nth-child(3) {
-        background-color: var(--color-white);
-    }
-
-    .nav__bar {
-        width: 100%;
-        height: 5px;
-        background-color: var(--color-primary, #000);
-        border-radius: 2rem;
-        transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out;
-        transform-origin: center;
-    }
-
-    /* HERO */
-    .hero {
-        min-height: 250px;
-    }
-
-    .hero__content {
-        gap: 1.5rem;
-    }
-    .hero__content h1 {
-        font-size: 2rem;
-    }
-
-    .hero__subtitle {
-        display: none;
-    }
-
-    /* SECTION TOP PADDINGS */
-    .upcoming-matches__content,
-    .standings__content {
-        padding-top: 2rem;
-    }
-
-    /* MATCH CARD */
-    .match-card__team {
-        flex-direction: column;
-        text-align: center;
-        gap: 0.5rem;
-    }
-    .match-card__logo {
-        height: 2rem;
-    }
-
-    .match-card__team:last-child {
-        flex-direction: column-reverse;
-    }
-
-    .league-table__name {
-        font-size: 0.7rem;
-    }
-
-    .match-card__info {
-        font-size: 0.7rem;
-    }
-
-    .standings__content {
-        gap: 1rem;
-    }
-
-    /* Zobrazení nápovědi pro práci s tabulkou */
-    .standings__hint {
-        display: block;
-    }
-
-    .league-table__th,
-    .league-table__cell {
-        padding: 0.5rem;
-    }
-    
-    .league-table__logo {
-        width: 1rem;
-    }
-
-    /* Zmenseni filtr buttonu */
-    .filter-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.7rem;
-    }
-
-    /* Pouze 1 sloupec u gridu v TÝMY layoutu */
-    .teams__grid {
-        grid-template-columns: repeat(1, 1fr); 
-    }
-
-    /* FOOTER */
-    .footer__content {
-        padding: 2rem 1.5rem;
-        flex-direction: column;
-        width: 100%;
-        gap: 1.2rem;
-    }
-
-    .footer__column {
-        gap: 0.2rem;
-    }
-
-    .footer__heading {
-        margin-bottom: 0.2rem;
-    }
-
-    /* Copyright na konec */
-    .footer__column--brand {
-        order: 1;
-        gap: 0;
-    }
-
-    .footer__logo {
-        height: 2rem;
-        width: auto;
-    }
-}
-
-
-/* =========================================
-   LOGIN PAGE
-   ========================================= */
-
-.login-page {
-    min-height: 100vh;
-    background-color: var(--color-bg-page);
-    display: flex;
-    flex-direction: column;
-}
-
-.login-topbar {
-    padding: 1rem 1.5rem;
-    background-color: var(--color-bg-container);
-    border-bottom: 4px solid var(--color-accent);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.login-back {
-    color: var(--color-primary);
-    font-size: 0.9rem;
-    transition: color 0.2s ease;
-}
-
-.login-back:hover {
-    color: var(--color-primary-hover);
-    cursor: pointer;
-}
-
-.login-container {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-}
-
-.login-card {
-    background: var(--color-bg-container);
-    border-radius: var(--radius-card);
-    border: 1px solid var(--color-border);
-    padding: 2.5rem;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: var(--shadow-card);
-}
-
-.login-card h1 {
-    font-size: 1.5rem;
-    text-align: center;
-    margin-bottom: 0.5rem;
-}
-
-.login-subtitle {
-    text-align: center;
-    color: var(--color-text-subtle);
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-}
-
-.login-error {
-    background-color: #fff5f5;
-    border: 1px solid var(--color-error);
-    color: var(--color-error);
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-card);
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-}
-
-.form-group label {
-    font-weight: 600;
-    font-size: 0.9rem;
-    color: var(--color-text-main);
-}
-
-.form-group input {
-    padding: 0.7rem 1rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-card);
-    font-size: 1rem;
-    transition: border-color 0.2s ease;
-    background: var(--color-bg-container);
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-}
-
-.btn--full {
-    width: 100%;
-    padding: 0.85rem;
-    margin-top: 0.5rem;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-}
-
-/* =========================================
-   DETAIL TÝMU
-   ========================================= */
-
+/* Team Detail Subpage */
 .team-detail__content {
     padding: 2rem;
     width: 100%;
@@ -1144,7 +748,6 @@ a {
 
 .team-detail__name {
     font-size: 2.5rem;
-    color: var(--color-text-main);
 }
 
 .team-detail__university {
@@ -1187,19 +790,190 @@ a {
     color: var(--color-text-subtle);
 }
 
+/* Login Page Structure */
+.login-page {
+    min-height: 100vh;
+    background-color: var(--color-bg-page);
+    display: flex;
+    flex-direction: column;
+}
+
+.login-topbar {
+    padding: 1rem 1.5rem;
+    background-color: var(--color-bg-container);
+    border-bottom: 4px solid var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.login-back {
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.login-back:hover {
+    color: var(--color-primary-hover);
+}
+
+.login-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.login-card {
+    background: var(--color-bg-container);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-border);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-card);
+}
+
+.login-card h1 {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: var(--color-text-subtle);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.login-error {
+    background-color: #fff5f5;
+    border: 1px solid var(--color-error);
+    color: var(--color-error);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-card);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+
+/* =========================================
+   6. RESPONSIVE DESIGN (MEDIA QUERIES)
+   ========================================= */
+
+@media (max-width: 1024px) {
+    :root {
+        --container-width-desktop: 100%;
+    }
+    .teams__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
 @media (max-width: 768px) {
+    .section__header h2 { font-size: 1rem; }
+    .section__header a { font-size: 0.7rem; }
+    h1 { font-size: 1.5rem; }
+
+    /* Navigation */
+    body.no-scroll { overflow: hidden; }
+    .nav__menu {
+        flex-direction: column;
+        justify-content: space-evenly;
+        position: fixed;
+        top: 0; right: -100%;
+        height: 100vh; width: 100%;
+        background-color: var(--color-primary);
+        opacity: 0;
+        transition: right 0.3s ease, opacity 0.3s ease;
+        z-index: 90;
+    }
+    .nav__menu--open {
+        right: 0; opacity: 1;
+    }
+    .nav__link {
+        font-size: 1.5rem;
+        color: var(--color-white);
+    }
+    .nav__link--active {
+        border-bottom-color: var(--color-white);
+    }
+    .nav__item--login {
+        margin-left: 0; margin-top: 1rem;
+    }
+    .btn--login {
+        background-color: var(--color-white);
+        color: var(--color-primary);
+    }
+    .btn--login:hover {
+        border-color: var(--color-white);
+    }
+    .nav__hamburger {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 6px;
+        height: 40px; width: 40px;
+        background: transparent;
+        border: none;
+        z-index: 100;
+        position: relative;
+    }
+    .nav__bar {
+        width: 100%; height: 5px;
+        background-color: var(--color-primary);
+        border-radius: 2rem;
+        transition: transform 0.3s ease, opacity 0.2s ease;
+        transform-origin: center;
+    }
+    .nav__cross .nav__bar:nth-child(1) { transform: translateY(11px) rotate(45deg); background-color: var(--color-white); }
+    .nav__cross .nav__bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav__cross .nav__bar:nth-child(3) { transform: translateY(-11px) rotate(-45deg); background-color: var(--color-white); }
+
+    /* Sections */
+    .hero { min-height: 250px; }
+    .hero__content { gap: 1.5rem; }
+    .hero__content h1 { font-size: 2rem; }
+    .hero__subtitle { display: none; }
+    .upcoming-matches__content, .standings__content { padding-top: 2rem; }
+
+    /* Layouts & Cards */
+    .match-card__team {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    .match-card__logo { height: 2rem; }
+    .match-card__team:last-child { flex-direction: column-reverse; }
+    .match-card__info { font-size: 0.7rem; }
+    .league-table__name { font-size: 0.7rem; }
+    .standings__content { gap: 1rem; }
+    .standings__hint { display: block; }
+    .league-table__th, .league-table__cell { padding: 0.5rem; }
+    .league-table__logo { width: 1rem; }
+    .filter-btn { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
+    .teams__grid { grid-template-columns: 1fr; }
+
+    /* Footer */
+    .footer__content {
+        padding: 2rem 1.5rem;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+    .footer__column { gap: 0.2rem; }
+    .footer__heading { margin-bottom: 0.2rem; }
+    .footer__column--brand { order: 1; gap: 0; }
+    .footer__logo { height: 2rem; }
+
+    /* Detail Page */
     .team-detail__hero {
         flex-direction: column;
         text-align: center;
         padding: 1.5rem;
         gap: 1.5rem;
     }
-
-    .team-detail__status {
-        align-self: center;
-    }
-
-    .team-detail__name {
-        font-size: 1.75rem;
-    }
+    .team-detail__status { align-self: center; }
+    .team-detail__name { font-size: 1.75rem; }
 }
