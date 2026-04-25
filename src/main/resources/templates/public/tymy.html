@@ -19,7 +19,7 @@
                         <div class="team-card" th:each="tym : ${tymy}">
                             <div class="team-card__header">
                                 <img class="team-card__logo"
-                                     th:src="@{'/images/teams/' + ${tym.univerzita.zkratka.toLowerCase()} + '.svg'}"
+                                     th:src="@{'/images/teams/' + ${tym.univerzita.logoFile}}"
                                      th:alt="${tym.nazev} + ' Logo'"
                                      onerror="this.src='/images/teams/default.svg'"
                                      loading="lazy">
