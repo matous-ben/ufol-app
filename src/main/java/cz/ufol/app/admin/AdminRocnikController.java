@@ -34,14 +34,14 @@ public class AdminRocnikController {
     public String list(Model model) {
         model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
         model.addAttribute("activePage", "rocniky");
-        return "admin/rocniky";
+        return "admin/rocniky/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
         model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
         model.addAttribute("activePage", "rocniky");
-        return "admin/rocniky";
+        return "admin/rocniky/form";
     }
 
     @PostMapping("/novy")
@@ -54,27 +54,27 @@ public class AdminRocnikController {
 
         if (trimmedNazev.isBlank()) {
             redirectAttributes.addFlashAttribute("error", "Název ročníku je povinný.");
-            return "redirect:/admin/rocniky";
+            return "redirect:/admin/rocniky/novy";
         }
 
         if (rokOd == null || rokDo == null) {
             redirectAttributes.addFlashAttribute("error", "Rok od i rok do jsou povinné.");
-            return "redirect:/admin/rocniky";
+            return "redirect:/admin/rocniky/novy";
         }
 
         if (rokOd < 2000 || rokOd > 2100 || rokDo < 2000 || rokDo > 2100) {
             redirectAttributes.addFlashAttribute("error", "Rok musí být v intervalu 2000-2100.");
-            return "redirect:/admin/rocniky";
+            return "redirect:/admin/rocniky/novy";
         }
 
         if (rokDo <= rokOd) {
             redirectAttributes.addFlashAttribute("error", "Rok do musí být větší než rok od.");
-            return "redirect:/admin/rocniky";
+            return "redirect:/admin/rocniky/novy";
         }
 
         if (rocnikRepository.existsByNazevIgnoreCase(trimmedNazev)) {
             redirectAttributes.addFlashAttribute("error", "Ročník s tímto názvem již existuje.");
-            return "redirect:/admin/rocniky";
+            return "redirect:/admin/rocniky/novy";
         }
 
         var rocnik = Rocnik.builder()

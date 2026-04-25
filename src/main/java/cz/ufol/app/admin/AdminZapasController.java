@@ -2,6 +2,9 @@ package cz.ufol.app.admin;
 
 import cz.ufol.app.match.Zapas;
 import cz.ufol.app.match.ZapasRepository;
+import cz.ufol.app.match.UcastVZapase;
+import cz.ufol.app.match.UcastVZapaseRepository;
+import cz.ufol.app.player.RegistraceRepository;
 import cz.ufol.app.season.RocnikRepository;
 import cz.ufol.app.team.TymRepository;
 import cz.ufol.app.venue.MistoKonaniRepository;
@@ -15,9 +18,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.transaction.annotation.Transactional;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/admin/zapasy")
@@ -29,6 +39,8 @@ public class AdminZapasController {
     private final TymRepository tymRepository;
     private final RocnikRepository rocnikRepository;
     private final MistoKonaniRepository mistoKonaniRepository;
+    private final RegistraceRepository registraceRepository;
+    private final UcastVZapaseRepository ucastVZapaseRepository;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - zápasy", description = "Správa jednotlivých zápasů")
@@ -144,15 +156,36 @@ public class AdminZapasController {
             return "redirect:/admin/zapasy";
         }
 
-        model.addAttribute("zapas", zapasOpt.get());
+        var zapas = zapasOpt.get();
+
+        var domaciRegistrace = registraceRepository
+                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getDomaciTym());
+        var hosteRegistrace = registraceRepository
+                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getHosteTym());
+
+        var ucasti = ucastVZapaseRepository.findByZapas(zapas);
+        Set<Long> selectedRegistraceIds = ucasti.stream()
+                .map(u -> u.getRegistrace().getId())
+                .collect(Collectors.toSet());
+        Map<Long, Integer> golyMap = ucasti.stream()
+                .collect(Collectors.toMap(u -> u.getRegistrace().getId(), UcastVZapase::getGoly));
+
+        model.addAttribute("zapas", zapas);
+        model.addAttribute("domaciRegistrace", domaciRegistrace);
+        model.addAttribute("hosteRegistrace", hosteRegistrace);
+        model.addAttribute("selectedRegistraceIds", selectedRegistraceIds);
+        model.addAttribute("golyMap", golyMap);
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/vysledek";
     }
 
     @PostMapping("/{id}/vysledek")
+    @Transactional
     public String vysledek(@PathVariable Long id,
                            @RequestParam Integer domaciSkore,
                            @RequestParam Integer hosteSkore,
+                           @RequestParam(required = false) List<Long> registraceIds,
+                           HttpServletRequest request,
                            RedirectAttributes redirectAttributes) {
 
         if (domaciSkore == null || hosteSkore == null) {
@@ -176,6 +209,46 @@ public class AdminZapasController {
         zapas.setHosteSkore(hosteSkore);
         zapas.setOdehran(true);
         zapasRepository.save(zapas);
+
+        var domaciRegistrace = registraceRepository
+                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getDomaciTym());
+        var hosteRegistrace = registraceRepository
+                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getHosteTym());
+
+        Set<Long> povoleneRegistraceIds = java.util.stream.Stream.concat(
+                        domaciRegistrace.stream().map(r -> r.getId()),
+                        hosteRegistrace.stream().map(r -> r.getId())
+                )
+                .collect(Collectors.toSet());
+
+        ucastVZapaseRepository.deleteByZapas(zapas);
+
+        if (registraceIds != null && !registraceIds.isEmpty()) {
+            var validniRegistrace = registraceRepository.findAllById(registraceIds).stream()
+                    .filter(r -> povoleneRegistraceIds.contains(r.getId()))
+                    .toList();
+
+            for (var registrace : validniRegistrace) {
+                String golyRaw = request.getParameter("goly_" + registrace.getId());
+                int goly = 0;
+                if (golyRaw != null && !golyRaw.isBlank()) {
+                    try {
+                        goly = Integer.parseInt(golyRaw);
+                    } catch (NumberFormatException ignored) {
+                        goly = 0;
+                    }
+                }
+                if (goly < 0) {
+                    goly = 0;
+                }
+
+                ucastVZapaseRepository.save(UcastVZapase.builder()
+                        .zapas(zapas)
+                        .registrace(registrace)
+                        .goly(goly)
+                        .build());
+            }
+        }
 
         redirectAttributes.addFlashAttribute("success",
                 "Výsledek zápasu byl uložen. Tabulka se automaticky aktualizovala.");

@@ -20,35 +20,11 @@
 
       <div class="admin-list-header">
         <h1 class="admin-page-title">Ročníky</h1>
+        <a th:href="@{/admin/rocniky/novy}" class="btn">+ Přidat ročník</a>
       </div>
 
       <div th:if="${success}" class="admin-alert admin-alert--success" th:text="${success}"></div>
       <div th:if="${error}" class="admin-alert admin-alert--error" th:text="${error}"></div>
-
-      <div class="admin-form-card">
-        <form th:action="@{/admin/rocniky/novy}" method="post">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-
-          <div class="form-group">
-            <label for="nazev">Název ročníku</label>
-            <input id="nazev" name="nazev" type="text" placeholder="Např. 2026/2027" required>
-          </div>
-
-          <div class="form-group">
-            <label for="rokOd">Rok od</label>
-            <input id="rokOd" name="rokOd" type="number" min="2000" max="2100" required>
-          </div>
-
-          <div class="form-group">
-            <label for="rokDo">Rok do</label>
-            <input id="rokDo" name="rokDo" type="number" min="2000" max="2100" required>
-          </div>
-
-          <div class="admin-form-actions">
-            <button type="submit" class="btn">Vytvořit ročník</button>
-          </div>
-        </form>
-      </div>
 
       <h2 class="admin-section-title">Seznam ročníků</h2>
       <div class="admin-table-wrapper">

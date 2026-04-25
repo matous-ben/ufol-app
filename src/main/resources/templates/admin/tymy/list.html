@@ -28,15 +28,15 @@
                 <table class="admin-table">
                     <thead>
                     <tr>
-                        <th>Tým</th>
+                        <th class="admin-table__th--left">Tým</th>
                         <th>Univerzita</th>
                         <th>Aktivní</th>
                         <th>Akce</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="tym : ${tymy}">
-                        <td>
+                    <tr th:each="tym, stat : ${tymy}" th:classappend="${stat.even} ? ' admin-table__row--zebra' : ''">
+                        <td class="admin-table__cell--left">
                             <div class="admin-table__team">
                                 <img th:src="@{'/images/teams/' + ${tym.univerzita.logoFile}}"
                                      th:alt="${tym.nazev}"
@@ -55,6 +55,7 @@
                             <a th:href="@{/admin/tymy/{id}/edit(id=${tym.id})}" class="admin-btn-edit">Upravit</a>
                             <form th:action="@{/admin/tymy/{id}/smazat(id=${tym.id})}" method="post"
                                   onsubmit="return confirm('Opravdu smazat tým?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                 <button type="submit" class="admin-btn-delete">Smazat</button>
                             </form>
                         </td>

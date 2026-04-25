@@ -29,18 +29,19 @@
             <div class="admin-table-wrapper">
                 <table class="admin-table">
                     <thead>
-                    <tr><th>Datum</th><th>Domácí</th><th>Hosté</th><th>Místo</th><th>Akce</th></tr>
+                    <tr><th>Datum</th><th>Domácí</th><th>Hosté</th><th class="admin-table__th--left">Místo</th><th>Akce</th></tr>
                     </thead>
                     <tbody>
-                    <tr th:each="zapas : ${naplanovane}">
+                    <tr th:each="zapas, stat : ${naplanovane}" th:classappend="${stat.even} ? ' admin-table__row--zebra' : ''">
                         <td th:text="${zapas.datumCas != null ? #temporals.format(zapas.datumCas, 'd. M. yyyy HH:mm') : '—'}"></td>
                         <td th:text="${zapas.domaciTym.univerzita.zkratka}"></td>
                         <td th:text="${zapas.hosteTym.univerzita.zkratka}"></td>
-                        <td th:text="${zapas.mistoKonani != null ? zapas.mistoKonani.nazev : '—'}"></td>
+                        <td class="admin-table__cell--left" th:text="${zapas.mistoKonani != null ? zapas.mistoKonani.nazev : '—'}"></td>
                         <td class="admin-table__actions">
                             <a th:href="@{/admin/zapasy/{id}/vysledek(id=${zapas.id})}" class="admin-btn-edit">Zapsat výsledek</a>
                             <form th:action="@{/admin/zapasy/{id}/smazat(id=${zapas.id})}" method="post"
                                   onsubmit="return confirm('Smazat zápas?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                 <button type="submit" class="admin-btn-delete">Smazat</button>
                             </form>
                         </td>
@@ -59,7 +60,7 @@
                     <tr><th>Datum</th><th>Domácí</th><th>Skóre</th><th>Hosté</th><th>Akce</th></tr>
                     </thead>
                     <tbody>
-                    <tr th:each="zapas : ${odehrane}">
+                    <tr th:each="zapas, stat : ${odehrane}" th:classappend="${stat.even} ? ' admin-table__row--zebra' : ''">
                         <td th:text="${zapas.datumCas != null ? #temporals.format(zapas.datumCas, 'd. M. yyyy') : '—'}"></td>
                         <td th:text="${zapas.domaciTym.univerzita.zkratka}"></td>
                         <td th:text="${zapas.domaciSkore} + ' : ' + ${zapas.hosteSkore}"></td>
@@ -68,6 +69,7 @@
                             <a th:href="@{/admin/zapasy/{id}/vysledek(id=${zapas.id})}" class="admin-btn-edit">Opravit</a>
                             <form th:action="@{/admin/zapasy/{id}/smazat(id=${zapas.id})}" method="post"
                                   onsubmit="return confirm('Smazat zápas?')">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                                 <button type="submit" class="admin-btn-delete">Smazat</button>
                             </form>
                         </td>

@@ -23,6 +23,9 @@
                 <a th:href="@{/admin/tymy}" class="admin-back-link">← Zpět na seznam</a>
             </div>
 
+            <div th:if="${error}" class="admin-alert admin-alert--error" th:text="${error}"></div>
+            <div th:if="${success}" class="admin-alert admin-alert--success" th:text="${success}"></div>
+
             <div class="admin-form-card">
                 <form th:action="${tym.id != null} ? '@{/admin/tymy/{id}/edit(id=${tym.id})}' : '@{/admin/tymy/novy}'"
                       method="post">
