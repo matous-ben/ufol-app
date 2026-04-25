@@ -1,28 +1,14 @@
 <!DOCTYPE html>
 <html lang="cs" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-          th:content="'Detail týmu ' + ${tym.univerzita.zkratka} + ' v Univerzitní fotbalové lize UFoL'">
-    <title th:text="${tym.univerzita.zkratka} + ' | UFoL'">Tým | UFoL</title>
-    <link rel="icon" th:href="@{/images/favicon-ufol.svg}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-          rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap"
-              rel="stylesheet">
-    </noscript>
-    <link rel="stylesheet" th:href="@{/css/main.css}">
-    <script th:src="@{/js/script.js}" defer></script>
-</head>
+
+<head th:replace="~{fragments/layout :: head('Týmy', 'Přehled týmů v Univerzitní fotbalové lize UFoL')}"></head>
+
 <body>
 
-<header th:replace="~{fragments/layout :: header}"></header>
+        <!-- Include the header fragment from layout.html -->
+        <header th:replace="~{fragments/layout :: header}"></header>
 
-<main>
+        <main>
     <section class="team-detail">
         <div class="team-detail__content">
 
@@ -59,17 +45,19 @@
                 <h2 class="team-detail__section-title">Soupiska hráčů</h2>
 
                 <!-- Active roster -->
-                <div th:if="${not #lists.isEmpty(hraci)}" class="standings__table-content">
+                <div th:if="${not #lists.isEmpty(hracStats)}" class="standings__table-content">
                     <table class="league-table">
                         <thead>
                         <tr class="league-table__header-row">
                             <th class="league-table__th">#</th>
                             <th class="league-table__th league-table__th--team">Hráč</th>
                             <th class="league-table__th">Datum narození</th>
+                            <th class="league-table__th">Zápasy</th>
+                            <th class="league-table__th">Góly</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="registrace, stat : ${hraci}"
+                        <tr th:each="row, stat : ${hracStats}"
                             class="league-table__row"
                             th:classappend="${stat.even ? 'league-table__row--zebra' : ''}">
 
@@ -79,23 +67,25 @@
                             <td class="league-table__cell league-table__cell--team">
                                 <div class="league-table__team-content">
                                         <span class="league-table__name"
-                                              th:text="${registrace.hrac.prijmeni + ' ' + registrace.hrac.jmeno}">
+                                              th:text="${row.registrace().hrac.prijmeni + ' ' + row.registrace().hrac.jmeno}">
                                             Novák Jan
                                         </span>
                                 </div>
                             </td>
 
                             <td class="league-table__cell"
-                                th:text="${registrace.hrac.datumNarozeni != null ? #temporals.format(registrace.hrac.datumNarozeni, 'd. M. yyyy') : '—'}">
+                                th:text="${row.registrace().hrac.datumNarozeni != null ? #temporals.format(row.registrace().hrac.datumNarozeni, 'd. M. yyyy') : '—'}">
                                 1. 1. 2000
                             </td>
+                            <td class="league-table__cell" th:text="${row.odehraneZapasy()}">0</td>
+                            <td class="league-table__cell" th:text="${row.goly()}">0</td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- Empty state -->
-                <div th:if="${#lists.isEmpty(hraci)}" class="team-detail__empty">
+                <div th:if="${#lists.isEmpty(hracStats)}" class="team-detail__empty">
                     <p>Soupiska pro aktuální ročník zatím není k dispozici.</p>
                 </div>
             </div>
@@ -104,7 +94,7 @@
     </section>
 </main>
 
-<footer th:replace="~{fragments/layout :: footer}"></footer>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
 
 </body>
 </html>
