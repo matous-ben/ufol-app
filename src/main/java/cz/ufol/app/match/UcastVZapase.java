@@ -29,4 +29,7 @@ public class UcastVZapase {
     @ManyToOne
     @JoinColumn(name = "registrace_id", nullable = false)
     private Registrace registrace;
+
+    @Column
+    private Integer goly = 0;
 }

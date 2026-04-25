@@ -1,6 +1,6 @@
 package cz.ufol.app.team;
 
-import cz.ufol.app.player.RegistraceRepository;
+import cz.ufol.app.player.HracService;
 import cz.ufol.app.season.RocnikRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,7 +25,7 @@ public class TymController {
     private final TymService tymService;
     private final TymRepository tymRepository;
     private final RocnikRepository rocnikRepository;
-    private final RegistraceRepository registraceRepository;
+    private final HracService hracService;
 
     @GetMapping("/tymy")
     @Operation(summary = "Zobrazit všechny týmy")
@@ -49,12 +49,12 @@ public class TymController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
-        var hraci = aktivniRocnik != null
-                ? registraceRepository.findByTymAndRocnik(tym, aktivniRocnik)
+        var hracStats = aktivniRocnik != null
+                ? hracService.najdiStatistikyTymuProRocnik(tym, aktivniRocnik)
                 : List.of();
 
         model.addAttribute("tym", tym);
-        model.addAttribute("hraci", hraci);
+        model.addAttribute("hracStats", hracStats);
         model.addAttribute("activePage", "tymy");
         return "public/tym-detail";
     }
