@@ -92,23 +92,15 @@ public class AdminRocnikController {
 
     @PostMapping("/{id}/aktivovat")
     public String aktivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnikOpt = rocnikRepository.findById(id);
-        if (rocnikOpt.isEmpty()) {
+        var rocnik = rocnikRepository.findById(id).orElse(null);
+        if (rocnik == null) {
             redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
             return "redirect:/admin/rocniky";
         }
-
-        // Deaktivuj všechny ročníky
-        rocnikRepository.findAll().forEach(r -> r.setAktivni(false));
-        rocnikRepository.saveAll(rocnikRepository.findAll());
-
-        // Aktivuj vybraný
-        var rocnik = rocnikOpt.get();
+        rocnikRepository.deactivateAll();   // One UPDATE statement
         rocnik.setAktivni(true);
         rocnikRepository.save(rocnik);
-
-        redirectAttributes.addFlashAttribute("success",
-                "Ročník " + rocnik.getNazev() + " byl nastaven jako aktivní.");
+        redirectAttributes.addFlashAttribute("success", "Ročník " + rocnik.getNazev() + " aktivován.");
         return "redirect:/admin/rocniky";
     }
 
