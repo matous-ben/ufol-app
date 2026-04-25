@@ -11,9 +11,6 @@ public class TymService {
     private final TymRepository tymRepository;
 
     public List<Tym> findAllAktivni() {
-        return tymRepository.findAllByOrderByNazevAsc()
-                .stream()
-                .filter(Tym::isAktivni)
-                .toList();
+        return tymRepository.findByAktivniTrue();
     }
 }
