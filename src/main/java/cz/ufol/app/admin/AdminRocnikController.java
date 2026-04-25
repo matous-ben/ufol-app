@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -141,8 +142,14 @@ public class AdminRocnikController {
             return "redirect:/admin/rocniky";
         }
 
-        rocnikRepository.delete(rocnik);
-        redirectAttributes.addFlashAttribute("success", "Ročník byl smazán.");
+        try {
+            rocnikRepository.delete(rocnik);
+            redirectAttributes.addFlashAttribute("success", "Ročník byl smazán.");
+        } catch (DataIntegrityViolationException e) {
+            // Catches foreign key constraint violations
+            redirectAttributes.addFlashAttribute("error", "Ročník nelze smazat, protože jsou na něj navázány týmy nebo zápasy.");
+        }
+
         return "redirect:/admin/rocniky";
     }
 }

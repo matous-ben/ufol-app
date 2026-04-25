@@ -24,7 +24,8 @@ public class SecurityConfig {
                                 "/tymy/**", "/css/**", "/images/**",
                                 "/js/**", "/login",
                                 "/swagger-ui.html", "/swagger-ui",
-                                "/v3/api-docs/"
+                                "/v3/api-docs/",
+                                "/error"
                         ).permitAll()
                         .requestMatchers("/admin/**").authenticated()
                         .anyRequest().denyAll()
