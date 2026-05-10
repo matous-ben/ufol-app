@@ -2,6 +2,7 @@ package cz.ufol.app.match;
 
 import cz.ufol.app.season.Rocnik;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -9,12 +10,15 @@ import java.util.List;
 
 public interface ZapasRepository extends JpaRepository<Zapas, Long> {
     List<Zapas> findByRocnik(Rocnik rocnik);
+    @EntityGraph(attributePaths = {"domaciTym.univerzita", "hosteTym.univerzita"})
     List<Zapas> findByRocnikAndOdehranFalseOrderByDatumCasAsc(Rocnik rocnik);
+    @EntityGraph(attributePaths = {"domaciTym.univerzita", "hosteTym.univerzita"})
     List<Zapas> findByRocnikAndOdehranTrueOrderByDatumCasDesc(Rocnik rocnik);
     List<Zapas> findTop5ByOdehranTrueOrderByDatumCasDesc();
 
     List<Zapas> findByRocnikAndOdehranTrue(Rocnik rocnik);
 
+    @EntityGraph(attributePaths = {"domaciTym.univerzita", "hosteTym.univerzita"})
     List<Zapas> findTop3ByOdehranFalseOrderByDatumCasAsc();
 
     // reseni problemu N+1 pomoci JOIN FETCH

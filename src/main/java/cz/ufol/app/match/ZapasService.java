@@ -4,6 +4,7 @@ import cz.ufol.app.season.Rocnik;
 import cz.ufol.app.season.RocnikRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,7 @@ public class ZapasService {
 
     // Vrati vsechny naplanovane zapasy v aktivni sezone
     // serazene podle data vzestupne (nejblizsi nejdrvie)
+    @Transactional(readOnly = true)
     public List<Zapas> findNaplanovane() {
         Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
         if (aktivniRocnik.isEmpty()) return Collections.emptyList();
@@ -27,6 +29,7 @@ public class ZapasService {
 
     // Vrati vsechny odehrane zapasy v aktivni sezonu
     // serazene podle data sestupne
+    @Transactional(readOnly = true)
     public List<Zapas> findOdehrane() {
         Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
         if (aktivniRocnik.isEmpty()) return Collections.emptyList();
@@ -34,6 +37,7 @@ public class ZapasService {
                 .findByRocnikAndOdehranTrueOrderByDatumCasDesc(aktivniRocnik.get());
     }
 
+    @Transactional(readOnly = true)
     public List<Zapas> findTop3Naplanovane() {
         Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
         if (aktivniRocnik.isEmpty()) return Collections.emptyList();

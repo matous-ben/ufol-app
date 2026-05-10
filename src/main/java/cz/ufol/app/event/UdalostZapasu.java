@@ -19,11 +19,11 @@ public class UdalostZapasu {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ucast_v_zapase_id", nullable = false)
     private UcastVZapase ucastVZapase;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "typ_udalosti_id", nullable = false)
     private TypUdalosti typUdalosti;
 

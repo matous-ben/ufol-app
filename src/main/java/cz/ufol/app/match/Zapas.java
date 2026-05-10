@@ -24,19 +24,19 @@ public class Zapas {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rocnik_id", nullable = false)
     private Rocnik rocnik;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "domaci_tym_id", nullable = false)
     private Tym domaciTym;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hoste_tym_id", nullable = false)
     private Tym hosteTym;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "misto_konani_id")
     private MistoKonani mistoKonani;
 

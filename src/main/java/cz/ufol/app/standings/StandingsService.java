@@ -8,6 +8,7 @@ import cz.ufol.app.team.Tym;
 import cz.ufol.app.team.TymRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -46,6 +47,7 @@ public class StandingsService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<StandingsRowDTO> calculateStandings() {
         Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
         if (aktivniRocnik.isEmpty()) {
