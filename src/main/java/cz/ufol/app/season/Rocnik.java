@@ -6,8 +6,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.Objects;
+
 @Entity
-@Table(name = "rocniky")
+@Table(
+        name = "rocniky",
+        indexes = {
+                @Index(name = "idx_rocniky_aktivni", columnList = "aktivni"),
+                @Index(name = "idx_rocniky_rok_od", columnList = "rok_od")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,4 +42,17 @@ public class Rocnik {
 
     @Column(nullable = false)
     private boolean aktivni = true;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Rocnik rocnik = (Rocnik) o;
+        return Objects.equals(nazev, rocnik.nazev);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nazev);
+    }
 }

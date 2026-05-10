@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "typy_udalosti")
 @Getter
@@ -26,4 +28,17 @@ public class TypUdalosti {
     @NotBlank
     @Column(length = 10, nullable = false, unique = true)
     private String kod;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TypUdalosti that = (TypUdalosti) o;
+        return Objects.equals(kod, that.kod);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kod);
+    }
 }

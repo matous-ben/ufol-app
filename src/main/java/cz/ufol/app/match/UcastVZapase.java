@@ -4,8 +4,14 @@ import cz.ufol.app.player.Registrace;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "ucasti_v_zapasech",
+    indexes = {
+        @Index(name = "idx_ucasti_zapas_id", columnList = "zapas_id"),
+        @Index(name = "idx_ucasti_registrace_id", columnList = "registrace_id")
+    },
     uniqueConstraints = {
         @UniqueConstraint(columnNames = {"zapas_id", "registrace_id"})
     })
@@ -22,14 +28,36 @@ public class UcastVZapase {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // Match is loaded only for reporting/edit flows; lazy avoids default eager joins.
     @JoinColumn(name = "zapas_id", nullable = false)
     private Zapas zapas;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // Registration/player details are needed only in selected screens; lazy is more efficient.
     @JoinColumn(name = "registrace_id", nullable = false)
     private Registrace registrace;
 
     @Column
     private Integer goly = 0;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UcastVZapase that = (UcastVZapase) o;
+        return Objects.equals(zapasId(), that.zapasId())
+                && Objects.equals(registraceId(), that.registraceId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(zapasId(), registraceId());
+    }
+
+    private Long zapasId() {
+        return zapas != null ? zapas.getId() : null;
+    }
+
+    private Long registraceId() {
+        return registrace != null ? registrace.getId() : null;
+    }
 }
