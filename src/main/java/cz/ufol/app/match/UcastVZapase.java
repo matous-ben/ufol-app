@@ -22,11 +22,11 @@ public class UcastVZapase {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "zapas_id", nullable = false)
     private Zapas zapas;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "registrace_id", nullable = false)
     private Registrace registrace;
 

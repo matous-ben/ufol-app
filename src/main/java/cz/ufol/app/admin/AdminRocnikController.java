@@ -1,7 +1,6 @@
 package cz.ufol.app.admin;
 
 import cz.ufol.app.season.Rocnik;
-import cz.ufol.app.season.RocnikRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Tag(name = "Admin - ročníky", description = "Správa ročníků — vyžaduje přihlášení")
 public class AdminRocnikController {
 
-    private final RocnikRepository rocnikRepository;
+    private final AdminRocnikService adminRocnikService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - ročníky", description = "Správa jednotlivých ročníků")
@@ -33,14 +32,14 @@ public class AdminRocnikController {
             )
     )
     public String list(Model model) {
-        model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
+        model.addAttribute("rocniky", adminRocnikService.findAll());
         model.addAttribute("activePage", "rocniky");
         return "admin/rocniky/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
+        model.addAttribute("rocniky", adminRocnikService.findAll());
         model.addAttribute("activePage", "rocniky");
         return "admin/rocniky/form";
     }
@@ -73,7 +72,7 @@ public class AdminRocnikController {
             return "redirect:/admin/rocniky/novy";
         }
 
-        if (rocnikRepository.existsByNazevIgnoreCase(trimmedNazev)) {
+        if (adminRocnikService.existsByNazevIgnoreCase(trimmedNazev)) {
             redirectAttributes.addFlashAttribute("error", "Ročník s tímto názvem již existuje.");
             return "redirect:/admin/rocniky/novy";
         }
@@ -85,36 +84,33 @@ public class AdminRocnikController {
                 .aktivni(false)
                 .build();
 
-        rocnikRepository.save(rocnik);
+        adminRocnikService.save(rocnik);
         redirectAttributes.addFlashAttribute("success", "Ročník byl vytvořen.");
         return "redirect:/admin/rocniky";
     }
 
     @PostMapping("/{id}/aktivovat")
     public String aktivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnik = rocnikRepository.findById(id).orElse(null);
+        var rocnik = adminRocnikService.findById(id).orElse(null);
         if (rocnik == null) {
             redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
             return "redirect:/admin/rocniky";
         }
-        rocnikRepository.deactivateAll();   // One UPDATE statement
-        rocnik.setAktivni(true);
-        rocnikRepository.save(rocnik);
+        adminRocnikService.activate(rocnik);
         redirectAttributes.addFlashAttribute("success", "Ročník " + rocnik.getNazev() + " aktivován.");
         return "redirect:/admin/rocniky";
     }
 
     @PostMapping("/{id}/archivovat")
     public String archivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnikOpt = rocnikRepository.findById(id);
+        var rocnikOpt = adminRocnikService.findById(id);
         if (rocnikOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
             return "redirect:/admin/rocniky";
         }
 
         var rocnik = rocnikOpt.get();
-        rocnik.setAktivni(false);
-        rocnikRepository.save(rocnik);
+        adminRocnikService.archive(rocnik);
 
         redirectAttributes.addFlashAttribute("success", "Ročník byl archivován.");
         return "redirect:/admin/rocniky";
@@ -122,7 +118,7 @@ public class AdminRocnikController {
 
     @PostMapping("/{id}/smazat")
     public String smazat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnikOpt = rocnikRepository.findById(id);
+        var rocnikOpt = adminRocnikService.findById(id);
         if (rocnikOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
             return "redirect:/admin/rocniky";
@@ -135,7 +131,7 @@ public class AdminRocnikController {
         }
 
         try {
-            rocnikRepository.delete(rocnik);
+            adminRocnikService.delete(rocnik);
             redirectAttributes.addFlashAttribute("success", "Ročník byl smazán.");
         } catch (DataIntegrityViolationException e) {
             // Catches foreign key constraint violations

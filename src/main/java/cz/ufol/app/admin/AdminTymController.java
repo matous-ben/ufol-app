@@ -1,8 +1,7 @@
 package cz.ufol.app.admin;
 
 import cz.ufol.app.team.Tym;
-import cz.ufol.app.team.TymRepository;
-import cz.ufol.app.university.UniverzitaRepository;
+import cz.ufol.app.university.UniverzitaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,8 +19,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Tag(name = "Admin - týmy", description = "Správa týmů — vyžaduje přihlášení")
 public class AdminTymController {
 
-    private final TymRepository tymRepository;
-    private final UniverzitaRepository univerzitaRepository;
+    private final AdminTymService adminTymService;
+    private final UniverzitaService univerzitaService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - týmy", description = "Správa jednotlivých týmů")
@@ -34,7 +33,7 @@ public class AdminTymController {
             )
     )
     public String list(Model model) {
-        model.addAttribute("tymy", tymRepository.findAllByOrderByNazevAsc());
+        model.addAttribute("tymy", adminTymService.findAll());
         model.addAttribute("activePage", "tymy");
         return "admin/tymy/list";
     }
@@ -42,7 +41,7 @@ public class AdminTymController {
     @GetMapping("/novy")
     public String createForm(Model model) {
         model.addAttribute("tym", new Tym());
-        model.addAttribute("univerzity", univerzitaRepository.findAllByOrderByNazevAsc());
+        model.addAttribute("univerzity", univerzitaService.findAllByOrderByNazevAsc());
         model.addAttribute("activePage", "tymy");
 
         // Add the specific action URL for creating
@@ -58,28 +57,20 @@ public class AdminTymController {
                          RedirectAttributes redirectAttributes) {
 
         // 1. Proactive validation
-        if (tymRepository.existsByNazevIgnoreCase(nazev.trim())) {
+        if (adminTymService.existsByNazevIgnoreCase(nazev.trim())) {
             redirectAttributes.addFlashAttribute("error", "Tým s názvem '" + nazev.trim() + "' již existuje.");
             // Return back to the form, so they can try again
             return "redirect:/admin/tymy/novy";
         }
-
-        var univerzita = univerzitaRepository.findById(univerzitaId).orElseThrow();
-        var tym = Tym.builder()
-                .nazev(nazev.trim())
-                .univerzita(univerzita)
-                .aktivni(aktivni)
-                .build();
-
-        tymRepository.save(tym);
+        adminTymService.create(nazev, univerzitaId, aktivni);
         redirectAttributes.addFlashAttribute("success", "Tým byl úspěšně přidán.");
         return "redirect:/admin/tymy";
     }
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
-        model.addAttribute("tym", tymRepository.findById(id).orElseThrow());
-        model.addAttribute("univerzity", univerzitaRepository.findAllByOrderByNazevAsc());
+        model.addAttribute("tym", adminTymService.findByIdOrThrow(id));
+        model.addAttribute("univerzity", univerzitaService.findAllByOrderByNazevAsc());
         model.addAttribute("activePage", "tymy");
 
         // Add the specific action URL for editing
@@ -96,26 +87,18 @@ public class AdminTymController {
                        RedirectAttributes redirectAttributes) {
 
         // 1. Proactive validation (ignoring the team being edited)
-        if (tymRepository.existsByNazevIgnoreCaseAndIdNot(nazev.trim(), id)) {
+        if (adminTymService.existsByNazevIgnoreCaseAndIdNot(nazev.trim(), id)) {
             redirectAttributes.addFlashAttribute("error", "Tým s názvem '" + nazev.trim() + "' již existuje.");
             return "redirect:/admin/tymy/" + id + "/edit";
         }
-
-        var tym = tymRepository.findById(id).orElseThrow();
-        var univerzita = univerzitaRepository.findById(univerzitaId).orElseThrow();
-
-        tym.setNazev(nazev.trim());
-        tym.setUniverzita(univerzita);
-        tym.setAktivni(aktivni);
-
-        tymRepository.save(tym);
+        adminTymService.edit(id, nazev, univerzitaId, aktivni);
         redirectAttributes.addFlashAttribute("success", "Tým byl upraven.");
         return "redirect:/admin/tymy";
     }
 
     @PostMapping("/{id}/smazat")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        tymRepository.deleteById(id);
+        adminTymService.deleteById(id);
         redirectAttributes.addFlashAttribute("success", "Tým byl smazán.");
         return "redirect:/admin/tymy";
     }

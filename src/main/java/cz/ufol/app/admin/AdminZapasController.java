@@ -1,13 +1,5 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.match.Zapas;
-import cz.ufol.app.match.ZapasRepository;
-import cz.ufol.app.match.UcastVZapase;
-import cz.ufol.app.match.UcastVZapaseRepository;
-import cz.ufol.app.player.RegistraceRepository;
-import cz.ufol.app.season.RocnikRepository;
-import cz.ufol.app.team.TymRepository;
-import cz.ufol.app.venue.MistoKonaniRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,22 +17,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Controller
 @RequestMapping("/admin/zapasy")
 @RequiredArgsConstructor
 @Tag(name = "Admin - zápasy", description = "Správa zápasů — vyžaduje přihlášení")
 public class AdminZapasController {
 
-    private final ZapasRepository zapasRepository;
-    private final TymRepository tymRepository;
-    private final RocnikRepository rocnikRepository;
-    private final MistoKonaniRepository mistoKonaniRepository;
-    private final RegistraceRepository registraceRepository;
-    private final UcastVZapaseRepository ucastVZapaseRepository;
+    private final AdminZapasService adminZapasService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - zápasy", description = "Správa jednotlivých zápasů")
@@ -53,25 +36,20 @@ public class AdminZapasController {
             )
     )
     public String list(Model model) {
-        var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
-
-        if (aktivniRocnik != null) {
-            model.addAttribute("naplanovane",
-                    zapasRepository.findByRocnikAndOdehranFalseOrderByDatumCasAsc(aktivniRocnik));
-            model.addAttribute("odehrane",
-                    zapasRepository.findByRocnikAndOdehranTrueOrderByDatumCasDesc(aktivniRocnik));
-        }
-
-        model.addAttribute("aktivniRocnik", aktivniRocnik);
+        var listData = adminZapasService.getListData();
+        model.addAttribute("naplanovane", listData.naplanovane());
+        model.addAttribute("odehrane", listData.odehrane());
+        model.addAttribute("aktivniRocnik", listData.aktivniRocnik());
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        model.addAttribute("tymy", tymRepository.findByAktivniTrue());
-        model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
-        model.addAttribute("mistaKonani", mistoKonaniRepository.findAllByOrderByNazevAsc());
+        var formData = adminZapasService.getCreateFormData();
+        model.addAttribute("tymy", formData.tymy());
+        model.addAttribute("rocniky", formData.rocniky());
+        model.addAttribute("mistaKonani", formData.mistaKonani());
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/form";
     }
@@ -91,30 +69,22 @@ public class AdminZapasController {
         }
 
         // 2) Ověření existence entit
-        var domaciOpt = tymRepository.findById(domaciTymId);
-        if (domaciOpt.isEmpty()) {
+        if (!adminZapasService.existsTym(domaciTymId)) {
             redirectAttributes.addFlashAttribute("error", "Domácí tým nebyl nalezen.");
             return "redirect:/admin/zapasy/novy";
         }
 
-        var hosteOpt = tymRepository.findById(hosteTymId);
-        if (hosteOpt.isEmpty()) {
+        if (!adminZapasService.existsTym(hosteTymId)) {
             redirectAttributes.addFlashAttribute("error", "Hostující tým nebyl nalezen.");
             return "redirect:/admin/zapasy/novy";
         }
 
-        var rocnikOpt = rocnikRepository.findById(rocnikId);
-        if (rocnikOpt.isEmpty()) {
+        if (!adminZapasService.existsRocnik(rocnikId)) {
             redirectAttributes.addFlashAttribute("error", "Vybraný ročník nebyl nalezen.");
             return "redirect:/admin/zapasy/novy";
         }
 
-        // 3) Místo je volitelné, ale pokud je ID zaslané, musí existovat
-        var misto = mistoKonaniId != null
-                ? mistoKonaniRepository.findById(mistoKonaniId).orElse(null)
-                : null;
-
-        if (mistoKonaniId != null && misto == null) {
+        if (mistoKonaniId != null && !adminZapasService.existsMistoKonani(mistoKonaniId)) {
             redirectAttributes.addFlashAttribute("error", "Vybrané místo konání nebylo nalezeno.");
             return "redirect:/admin/zapasy/novy";
         }
@@ -131,18 +101,7 @@ public class AdminZapasController {
             }
         }
 
-        var zapas = Zapas.builder()
-                .domaciTym(domaciOpt.get())
-                .hosteTym(hosteOpt.get())
-                .rocnik(rocnikOpt.get())
-                .mistoKonani(misto)
-                .datumCas(parsedDatumCas)
-                .odehran(false)
-                .domaciSkore(0)
-                .hosteSkore(0)
-                .build();
-
-        zapasRepository.save(zapas);
+        adminZapasService.create(domaciTymId, hosteTymId, rocnikId, mistoKonaniId, parsedDatumCas);
         redirectAttributes.addFlashAttribute("success", "Zápas byl přidán.");
         return "redirect:/admin/zapasy";
     }
@@ -150,31 +109,17 @@ public class AdminZapasController {
     // UC-02: Enter match result
     @GetMapping("/{id}/vysledek")
     public String vysledekForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        var zapasOpt = zapasRepository.findById(id);
-        if (zapasOpt.isEmpty()) {
+        var formDataOpt = adminZapasService.getVysledekFormData(id);
+        if (formDataOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Zápas nebyl nalezen.");
             return "redirect:/admin/zapasy";
         }
-
-        var zapas = zapasOpt.get();
-
-        var domaciRegistrace = registraceRepository
-                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getDomaciTym());
-        var hosteRegistrace = registraceRepository
-                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getHosteTym());
-
-        var ucasti = ucastVZapaseRepository.findByZapas(zapas);
-        Set<Long> selectedRegistraceIds = ucasti.stream()
-                .map(u -> u.getRegistrace().getId())
-                .collect(Collectors.toSet());
-        Map<Long, Integer> golyMap = ucasti.stream()
-                .collect(Collectors.toMap(u -> u.getRegistrace().getId(), UcastVZapase::getGoly));
-
-        model.addAttribute("zapas", zapas);
-        model.addAttribute("domaciRegistrace", domaciRegistrace);
-        model.addAttribute("hosteRegistrace", hosteRegistrace);
-        model.addAttribute("selectedRegistraceIds", selectedRegistraceIds);
-        model.addAttribute("golyMap", golyMap);
+        var formData = formDataOpt.get();
+        model.addAttribute("zapas", formData.zapas());
+        model.addAttribute("domaciRegistrace", formData.domaciRegistrace());
+        model.addAttribute("hosteRegistrace", formData.hosteRegistrace());
+        model.addAttribute("selectedRegistraceIds", formData.selectedRegistraceIds());
+        model.addAttribute("golyMap", formData.golyMap());
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/vysledek";
     }
@@ -198,56 +143,9 @@ public class AdminZapasController {
             return "redirect:/admin/zapasy/" + id + "/vysledek";
         }
 
-        var zapasOpt = zapasRepository.findById(id);
-        if (zapasOpt.isEmpty()) {
+        if (!adminZapasService.ulozVysledek(id, domaciSkore, hosteSkore, registraceIds, request.getParameterMap())) {
             redirectAttributes.addFlashAttribute("error", "Zápas nebyl nalezen.");
             return "redirect:/admin/zapasy";
-        }
-
-        var zapas = zapasOpt.get();
-        zapas.setDomaciSkore(domaciSkore);
-        zapas.setHosteSkore(hosteSkore);
-        zapas.setOdehran(true);
-        zapasRepository.save(zapas);
-
-        var domaciRegistrace = registraceRepository
-                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getDomaciTym());
-        var hosteRegistrace = registraceRepository
-                .findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getHosteTym());
-
-        Set<Long> povoleneRegistraceIds = java.util.stream.Stream.concat(
-                        domaciRegistrace.stream().map(r -> r.getId()),
-                        hosteRegistrace.stream().map(r -> r.getId())
-                )
-                .collect(Collectors.toSet());
-
-        ucastVZapaseRepository.deleteByZapas(zapas);
-
-        if (registraceIds != null && !registraceIds.isEmpty()) {
-            var validniRegistrace = registraceRepository.findAllById(registraceIds).stream()
-                    .filter(r -> povoleneRegistraceIds.contains(r.getId()))
-                    .toList();
-
-            for (var registrace : validniRegistrace) {
-                String golyRaw = request.getParameter("goly_" + registrace.getId());
-                int goly = 0;
-                if (golyRaw != null && !golyRaw.isBlank()) {
-                    try {
-                        goly = Integer.parseInt(golyRaw);
-                    } catch (NumberFormatException ignored) {
-                        goly = 0;
-                    }
-                }
-                if (goly < 0) {
-                    goly = 0;
-                }
-
-                ucastVZapaseRepository.save(UcastVZapase.builder()
-                        .zapas(zapas)
-                        .registrace(registrace)
-                        .goly(goly)
-                        .build());
-            }
         }
 
         redirectAttributes.addFlashAttribute("success",
@@ -257,12 +155,10 @@ public class AdminZapasController {
 
     @PostMapping("/{id}/smazat")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        if (!zapasRepository.existsById(id)) {
+        if (!adminZapasService.delete(id)) {
             redirectAttributes.addFlashAttribute("error", "Zápas nebyl nalezen.");
             return "redirect:/admin/zapasy";
         }
-
-        zapasRepository.deleteById(id);
         redirectAttributes.addFlashAttribute("success", "Zápas byl smazán.");
         return "redirect:/admin/zapasy";
     }

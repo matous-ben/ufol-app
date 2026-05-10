@@ -1,19 +1,18 @@
 package cz.ufol.app.team;
 
 import cz.ufol.app.player.HracService;
-import cz.ufol.app.season.RocnikRepository;
+import cz.ufol.app.season.Rocnik;
+import cz.ufol.app.season.RocnikService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,8 +22,7 @@ import java.util.List;
 public class TymController {
 
     private final TymService tymService;
-    private final TymRepository tymRepository;
-    private final RocnikRepository rocnikRepository;
+    private final RocnikService rocnikService;
     private final HracService hracService;
 
     @GetMapping("/tymy")
@@ -45,10 +43,9 @@ public class TymController {
 
     @GetMapping("/tymy/{id}")
     public String tymDetail(@PathVariable Long id, Model model) {
-        var tym = tymRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        var tym = tymService.findByIdOrThrow(id);
 
-        var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
+        Rocnik aktivniRocnik = rocnikService.findByAktivniTrue().orElse(null);
         var hracStats = aktivniRocnik != null
                 ? hracService.najdiStatistikyTymuProRocnik(tym, aktivniRocnik)
                 : List.of();

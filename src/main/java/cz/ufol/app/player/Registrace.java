@@ -23,15 +23,15 @@ public class Registrace {
     @Setter(AccessLevel.NONE)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hrac_id", nullable = false)
     private Hrac hrac;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tym_id", nullable = false)
     private Tym tym;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rocnik_id",  nullable = false)
     private Rocnik rocnik;
 }

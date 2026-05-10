@@ -1,8 +1,5 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.player.HracService;
-import cz.ufol.app.season.RocnikRepository;
-import cz.ufol.app.team.TymRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,14 +15,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminHracController {
 
-	private final HracService hracService;
-	private final TymRepository tymRepository;
-	private final RocnikRepository rocnikRepository;
+	private final AdminHracService adminHracService;
 
 	@GetMapping
 	public String list(@RequestParam(required = false) Long tymId, Model model) {
-		var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
-		var tymy = tymRepository.findByAktivniTrue();
+		var aktivniRocnik = adminHracService.findAktivniRocnik().orElse(null);
+		var tymy = adminHracService.findAktivniTymy();
 
 		model.addAttribute("tymy", tymy);
 		model.addAttribute("selectedTymId", tymId);
@@ -43,14 +38,14 @@ public class AdminHracController {
 			return "admin/hraci/list";
 		}
 
-		var tymOpt = tymRepository.findById(tymId);
+		var tymOpt = adminHracService.findTymById(tymId);
 		if (tymOpt.isEmpty()) {
 			model.addAttribute("error", "Vybraný tým nebyl nalezen.");
 			model.addAttribute("hracStats", List.of());
 			return "admin/hraci/list";
 		}
 
-		model.addAttribute("hracStats", hracService.najdiStatistikyTymuProRocnik(tymOpt.get(), aktivniRocnik));
+		model.addAttribute("hracStats", adminHracService.najdiStatistikyTymuProRocnik(tymOpt.get(), aktivniRocnik));
 		return "admin/hraci/list";
 	}
 
@@ -69,13 +64,13 @@ public class AdminHracController {
 			return "redirect:/admin/hraci?tymId=" + tymId;
 		}
 
-		var aktivniRocnikOpt = rocnikRepository.findByAktivniTrue();
+		var aktivniRocnikOpt = adminHracService.findAktivniRocnik();
 		if (aktivniRocnikOpt.isEmpty()) {
 			redirectAttributes.addFlashAttribute("error", "Nejprve nastavte aktivní ročník.");
 			return "redirect:/admin/hraci?tymId=" + tymId;
 		}
 
-		var tymOpt = tymRepository.findById(tymId);
+		var tymOpt = adminHracService.findTymById(tymId);
 		if (tymOpt.isEmpty()) {
 			redirectAttributes.addFlashAttribute("error", "Vybraný tým nebyl nalezen.");
 			return "redirect:/admin/hraci";
@@ -91,13 +86,7 @@ public class AdminHracController {
 			}
 		}
 
-		hracService.createHracSRegistraci(
-				jmenoTrim,
-				prijmeniTrim,
-				parsedDatumNarozeni,
-				tymOpt.get(),
-				aktivniRocnikOpt.get()
-		);
+		adminHracService.createHracSRegistraci(jmenoTrim, prijmeniTrim, parsedDatumNarozeni, tymId, aktivniRocnikOpt.get());
 
 		redirectAttributes.addFlashAttribute("success", "Hráč byl přidán do aktivního ročníku.");
 		return "redirect:/admin/hraci?tymId=" + tymId;
@@ -107,7 +96,7 @@ public class AdminHracController {
 	public String delete(@PathVariable Long id,
 						 @RequestParam(required = false) Long tymId,
 						 RedirectAttributes redirectAttributes) {
-		hracService.smazatHraceVcetneHistorie(id);
+		adminHracService.smazatHraceVcetneHistorie(id);
 		redirectAttributes.addFlashAttribute("success", "Hráč byl odebrán.");
 		return tymId == null ? "redirect:/admin/hraci" : "redirect:/admin/hraci?tymId=" + tymId;
 	}

@@ -27,7 +27,7 @@ public class Tym {
     @Column(nullable = false)
     private boolean aktivni = true;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "univerzita_id", nullable = false)
     private Univerzita univerzita;
 }
