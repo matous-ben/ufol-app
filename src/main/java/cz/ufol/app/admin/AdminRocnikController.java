@@ -47,42 +47,33 @@ public class AdminRocnikController {
                          @RequestParam Integer rokOd,
                          @RequestParam Integer rokDo,
                          RedirectAttributes redirectAttributes) {
-        String error = adminRocnikService.create(nazev, rokOd, rokDo);
-        if (error != null) {
-            redirectAttributes.addFlashAttribute("error", error);
+        var result = adminRocnikService.create(nazev, rokOd, rokDo);
+        if (!result.success()) {
+            redirectAttributes.addFlashAttribute("error", result.message());
             return "redirect:/admin/rocniky/novy";
         }
-        redirectAttributes.addFlashAttribute("success", "Ročník byl vytvořen.");
+        redirectAttributes.addFlashAttribute("success", result.message());
         return "redirect:/admin/rocniky";
     }
 
     @PostMapping("/{id}/aktivovat")
     public String aktivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        String result = adminRocnikService.aktivovat(id);
-        redirectAttributes.addFlashAttribute(
-                result.equals("Ročník nebyl nalezen.") ? "error" : "success",
-                result
-        );
+        var result = adminRocnikService.aktivovat(id);
+        redirectAttributes.addFlashAttribute(result.success() ? "success" : "error", result.message());
         return "redirect:/admin/rocniky";
     }
 
     @PostMapping("/{id}/archivovat")
     public String archivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        String result = adminRocnikService.archivovat(id);
-        redirectAttributes.addFlashAttribute(
-                result.equals("Ročník nebyl nalezen.") ? "error" : "success",
-                result
-        );
+        var result = adminRocnikService.archivovat(id);
+        redirectAttributes.addFlashAttribute(result.success() ? "success" : "error", result.message());
         return "redirect:/admin/rocniky";
     }
 
     @PostMapping("/{id}/smazat")
     public String smazat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        String result = adminRocnikService.smazat(id);
-        boolean error = result.equals("Ročník nebyl nalezen.")
-                || result.startsWith("Aktivní ročník")
-                || result.startsWith("Ročník nelze smazat");
-        redirectAttributes.addFlashAttribute(error ? "error" : "success", result);
+        var result = adminRocnikService.smazat(id);
+        redirectAttributes.addFlashAttribute(result.success() ? "success" : "error", result.message());
 
         return "redirect:/admin/rocniky";
     }

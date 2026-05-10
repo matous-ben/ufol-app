@@ -21,23 +21,23 @@ public class AdminRocnikService {
     }
 
     @Transactional
-    public String create(String nazev, Integer rokOd, Integer rokDo) {
+    public OperationResult create(String nazev, Integer rokOd, Integer rokDo) {
         String trimmedNazev = nazev != null ? nazev.trim() : "";
 
         if (trimmedNazev.isBlank()) {
-            return "Název ročníku je povinný.";
+            return OperationResult.error("Název ročníku je povinný.");
         }
         if (rokOd == null || rokDo == null) {
-            return "Rok od i rok do jsou povinné.";
+            return OperationResult.error("Rok od i rok do jsou povinné.");
         }
         if (rokOd < 2000 || rokOd > 2100 || rokDo < 2000 || rokDo > 2100) {
-            return "Rok musí být v intervalu 2000-2100.";
+            return OperationResult.error("Rok musí být v intervalu 2000-2100.");
         }
         if (rokDo <= rokOd) {
-            return "Rok do musí být větší než rok od.";
+            return OperationResult.error("Rok do musí být větší než rok od.");
         }
         if (rocnikRepository.existsByNazevIgnoreCase(trimmedNazev)) {
-            return "Ročník s tímto názvem již existuje.";
+            return OperationResult.error("Ročník s tímto názvem již existuje.");
         }
 
         rocnikRepository.save(Rocnik.builder()
@@ -47,46 +47,56 @@ public class AdminRocnikService {
                 .aktivni(false)
                 .build());
 
-        return null;
+        return OperationResult.success("Ročník byl vytvořen.");
     }
 
     @Transactional
-    public String aktivovat(Long id) {
+    public OperationResult aktivovat(Long id) {
         var rocnik = rocnikRepository.findById(id).orElse(null);
         if (rocnik == null) {
-            return "Ročník nebyl nalezen.";
+            return OperationResult.error("Ročník nebyl nalezen.");
         }
         rocnikRepository.deactivateAll();
         rocnik.setAktivni(true);
         rocnikRepository.save(rocnik);
-        return "Ročník " + rocnik.getNazev() + " aktivován.";
+        return OperationResult.success("Ročník " + rocnik.getNazev() + " aktivován.");
     }
 
     @Transactional
-    public String archivovat(Long id) {
+    public OperationResult archivovat(Long id) {
         var rocnik = rocnikRepository.findById(id).orElse(null);
         if (rocnik == null) {
-            return "Ročník nebyl nalezen.";
+            return OperationResult.error("Ročník nebyl nalezen.");
         }
         rocnik.setAktivni(false);
         rocnikRepository.save(rocnik);
-        return "Ročník byl archivován.";
+        return OperationResult.success("Ročník byl archivován.");
     }
 
     @Transactional
-    public String smazat(Long id) {
+    public OperationResult smazat(Long id) {
         var rocnik = rocnikRepository.findById(id).orElse(null);
         if (rocnik == null) {
-            return "Ročník nebyl nalezen.";
+            return OperationResult.error("Ročník nebyl nalezen.");
         }
         if (rocnik.isAktivni()) {
-            return "Aktivní ročník nelze smazat. Nejprve ho archivujte.";
+            return OperationResult.error("Aktivní ročník nelze smazat. Nejprve ho archivujte.");
         }
         try {
             rocnikRepository.delete(rocnik);
-            return "Ročník byl smazán.";
+            return OperationResult.success("Ročník byl smazán.");
         } catch (DataIntegrityViolationException e) {
-            return "Ročník nelze smazat, protože jsou na něj navázány týmy nebo zápasy.";
+            return OperationResult.error("Ročník nelze smazat, protože jsou na něj navázány týmy nebo zápasy.");
+        }
+    }
+
+    public record OperationResult(boolean success, String message) {
+        public static OperationResult success(String message) {
+            return new OperationResult(true, message);
+        }
+
+        public static OperationResult error(String message) {
+            return new OperationResult(false, message);
         }
     }
 }
