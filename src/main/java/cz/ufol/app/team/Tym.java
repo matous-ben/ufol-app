@@ -50,6 +50,6 @@ public class Tym {
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : System.identityHashCode(this);
+        return Hibernate.getClass(this).hashCode();
     }
 }
