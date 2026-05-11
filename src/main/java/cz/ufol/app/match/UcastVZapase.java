@@ -42,8 +42,7 @@ public class UcastVZapase {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UcastVZapase that = (UcastVZapase) o;
+        if (!(o instanceof UcastVZapase that)) return false;
         return Objects.equals(zapasId(), that.zapasId())
                 && Objects.equals(registraceId(), that.registraceId());
     }
