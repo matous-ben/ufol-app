@@ -5,8 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.util.Objects;
+import org.hibernate.Hibernate;
 
 @Entity
 @Table(
@@ -46,13 +45,13 @@ public class Rocnik {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Rocnik rocnik = (Rocnik) o;
-        return Objects.equals(nazev, rocnik.nazev);
+        return id != null && id.equals(rocnik.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nazev);
+        return Hibernate.getClass(this).hashCode();
     }
 }

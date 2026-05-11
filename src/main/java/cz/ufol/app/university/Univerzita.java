@@ -4,8 +4,7 @@ package cz.ufol.app.university;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-
-import java.util.Objects;
+import org.hibernate.Hibernate;
 
 @Entity
 @Table(name = "univerzity")
@@ -35,13 +34,13 @@ public class Univerzita {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Univerzita that = (Univerzita) o;
-        return Objects.equals(zkratka, that.zkratka);
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(zkratka);
+        return Hibernate.getClass(this).hashCode();
     }
 }
