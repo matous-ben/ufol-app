@@ -1,6 +1,6 @@
 package cz.ufol.app.home;
 
-import cz.ufol.app.match.ZapasRepository;
+import cz.ufol.app.match.ZapasService;
 import cz.ufol.app.standings.StandingsRowDTO;
 import cz.ufol.app.standings.StandingsService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.List;
 public class HomeController {
 
     private final StandingsService standingsService;
-    private final ZapasRepository zapasRepository;
+    private final ZapasService zapasService;
 
     @GetMapping("/")
     public String home(Model model) {
@@ -27,8 +27,7 @@ public class HomeController {
         );
 
         model.addAttribute("standings", miniStandings);
-        model.addAttribute("upcomingMatches",
-                zapasRepository.findTop3ByOdehranFalseOrderByDatumCasAsc());
+        model.addAttribute("upcomingMatches", zapasService.findTop3UpcomingForHome());
         model.addAttribute("activePage", "home");
         return "public/index";
     }

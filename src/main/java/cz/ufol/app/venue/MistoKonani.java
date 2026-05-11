@@ -1,11 +1,20 @@
 package cz.ufol.app.venue;
 
+import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 @Entity
-@Table(name = "mista_konani")
+@Table(
+        name = "mista_konani",
+        indexes = {
+                @Index(name = "idx_mista_konani_nazev", columnList = "nazev")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,4 +41,17 @@ public class MistoKonani {
 
     @Column(length = 5)
     private String psc;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        MistoKonani that = (MistoKonani) o;
+        return id != null && id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Hibernate.getClass(this).hashCode();
+    }
 }

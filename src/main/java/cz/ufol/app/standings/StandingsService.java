@@ -65,7 +65,7 @@ public class StandingsService {
 
         // 3. Process matches ONLY for active teams
         List<Zapas> odehraneZapasy = zapasRepository
-                .findByRocnikAndOdehranTrueWithDetails(aktivniRocnik.get());
+                .findByRocnikAndOdehranTrue(aktivniRocnik.get());
 
         for (Zapas zapas : odehraneZapasy) {
             Tym domaci = zapas.getDomaciTym();

@@ -1,14 +1,12 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.season.Rocnik;
-import cz.ufol.app.season.RocnikRepository;
+import cz.ufol.app.season.RocnikService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Tag(name = "Admin - ročníky", description = "Správa ročníků — vyžaduje přihlášení")
 public class AdminRocnikController {
 
-    private final RocnikRepository rocnikRepository;
+    private final RocnikService rocnikService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - ročníky", description = "Správa jednotlivých ročníků")
@@ -33,14 +31,14 @@ public class AdminRocnikController {
             )
     )
     public String list(Model model) {
-        model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
+        model.addAttribute("rocniky", rocnikService.findAllByRokOdDesc());
         model.addAttribute("activePage", "rocniky");
         return "admin/rocniky/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        model.addAttribute("rocniky", rocnikRepository.findAllByOrderByRokOdDesc());
+        model.addAttribute("rocniky", rocnikService.findAllByRokOdDesc());
         model.addAttribute("activePage", "rocniky");
         return "admin/rocniky/form";
     }
@@ -50,98 +48,29 @@ public class AdminRocnikController {
                          @RequestParam Integer rokOd,
                          @RequestParam Integer rokDo,
                          RedirectAttributes redirectAttributes) {
-
-        String trimmedNazev = nazev != null ? nazev.trim() : "";
-
-        if (trimmedNazev.isBlank()) {
-            redirectAttributes.addFlashAttribute("error", "Název ročníku je povinný.");
-            return "redirect:/admin/rocniky/novy";
-        }
-
-        if (rokOd == null || rokDo == null) {
-            redirectAttributes.addFlashAttribute("error", "Rok od i rok do jsou povinné.");
-            return "redirect:/admin/rocniky/novy";
-        }
-
-        if (rokOd < 2000 || rokOd > 2100 || rokDo < 2000 || rokDo > 2100) {
-            redirectAttributes.addFlashAttribute("error", "Rok musí být v intervalu 2000-2100.");
-            return "redirect:/admin/rocniky/novy";
-        }
-
-        if (rokDo <= rokOd) {
-            redirectAttributes.addFlashAttribute("error", "Rok do musí být větší než rok od.");
-            return "redirect:/admin/rocniky/novy";
-        }
-
-        if (rocnikRepository.existsByNazevIgnoreCase(trimmedNazev)) {
-            redirectAttributes.addFlashAttribute("error", "Ročník s tímto názvem již existuje.");
-            return "redirect:/admin/rocniky/novy";
-        }
-
-        var rocnik = Rocnik.builder()
-                .nazev(trimmedNazev)
-                .rokOd(rokOd)
-                .rokDo(rokDo)
-                .aktivni(false)
-                .build();
-
-        rocnikRepository.save(rocnik);
-        redirectAttributes.addFlashAttribute("success", "Ročník byl vytvořen.");
-        return "redirect:/admin/rocniky";
+        var result = rocnikService.createAdminRocnik(nazev, rokOd, rokDo);
+        redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
+        return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/aktivovat")
     public String aktivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnik = rocnikRepository.findById(id).orElse(null);
-        if (rocnik == null) {
-            redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
-            return "redirect:/admin/rocniky";
-        }
-        rocnikRepository.deactivateAll();   // One UPDATE statement
-        rocnik.setAktivni(true);
-        rocnikRepository.save(rocnik);
-        redirectAttributes.addFlashAttribute("success", "Ročník " + rocnik.getNazev() + " aktivován.");
-        return "redirect:/admin/rocniky";
+        var result = rocnikService.aktivovatRocnik(id);
+        redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
+        return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/archivovat")
     public String archivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnikOpt = rocnikRepository.findById(id);
-        if (rocnikOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
-            return "redirect:/admin/rocniky";
-        }
-
-        var rocnik = rocnikOpt.get();
-        rocnik.setAktivni(false);
-        rocnikRepository.save(rocnik);
-
-        redirectAttributes.addFlashAttribute("success", "Ročník byl archivován.");
-        return "redirect:/admin/rocniky";
+        var result = rocnikService.archivovatRocnik(id);
+        redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
+        return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/smazat")
     public String smazat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var rocnikOpt = rocnikRepository.findById(id);
-        if (rocnikOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Ročník nebyl nalezen.");
-            return "redirect:/admin/rocniky";
-        }
-
-        var rocnik = rocnikOpt.get();
-        if (rocnik.isAktivni()) {
-            redirectAttributes.addFlashAttribute("error", "Aktivní ročník nelze smazat. Nejprve ho archivujte.");
-            return "redirect:/admin/rocniky";
-        }
-
-        try {
-            rocnikRepository.delete(rocnik);
-            redirectAttributes.addFlashAttribute("success", "Ročník byl smazán.");
-        } catch (DataIntegrityViolationException e) {
-            // Catches foreign key constraint violations
-            redirectAttributes.addFlashAttribute("error", "Ročník nelze smazat, protože jsou na něj navázány týmy nebo zápasy.");
-        }
-
-        return "redirect:/admin/rocniky";
+        var result = rocnikService.smazRocnik(id);
+        redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
+        return "redirect:" + result.redirectPath();
     }
 }

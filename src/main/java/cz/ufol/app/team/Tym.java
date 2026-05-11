@@ -5,9 +5,18 @@ import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
 
 @Entity
-@Table(name = "tymy")
+@Table(
+        name = "tymy",
+        indexes = {
+                @Index(name = "idx_tymy_univerzita_id", columnList = "univerzita_id"),
+                @Index(name = "idx_tymy_aktivni", columnList = "aktivni")
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,7 +36,20 @@ public class Tym {
     @Column(nullable = false)
     private boolean aktivni = true;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // University details are rendered in selected views only; lazy avoids eager graph loading.
     @JoinColumn(name = "univerzita_id", nullable = false)
     private Univerzita univerzita;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Tym tym = (Tym) o;
+        return id != null && Objects.equals(id, tym.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Hibernate.getClass(this).hashCode();
+    }
 }
