@@ -1,8 +1,10 @@
 package cz.ufol.app.event;
 
 import cz.ufol.app.match.UcastVZapase;
+import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
@@ -41,16 +43,14 @@ public class UdalostZapasu {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UdalostZapasu that = (UdalostZapasu) o;
-        return Objects.equals(ucastId(), that.ucastId())
-                && Objects.equals(typUdalostiId(), that.typUdalostiId())
-                && Objects.equals(minuta, that.minuta);
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ucastId(), typUdalostiId(), minuta);
+        return Hibernate.getClass(this).hashCode();
     }
 
     private Long ucastId() {

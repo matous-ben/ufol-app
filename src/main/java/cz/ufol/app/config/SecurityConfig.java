@@ -84,6 +84,7 @@ public class SecurityConfig {
     public AuthenticationEntryPoint json401EntryPoint() {
         return (request, response, authException) -> {
             response.setStatus(401);
+            response.setCharacterEncoding("UTF-8");
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"unauthorized\"}");
         };

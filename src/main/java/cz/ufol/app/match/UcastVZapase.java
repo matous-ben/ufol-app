@@ -1,8 +1,10 @@
 package cz.ufol.app.match;
 
 import cz.ufol.app.player.Registrace;
+import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
@@ -42,14 +44,14 @@ public class UcastVZapase {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof UcastVZapase that)) return false;
-        return Objects.equals(zapasId(), that.zapasId())
-                && Objects.equals(registraceId(), that.registraceId());
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        UcastVZapase that = (UcastVZapase) o;
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(zapasId(), registraceId());
+        return Hibernate.getClass(this).hashCode();
     }
 
     private Long zapasId() {

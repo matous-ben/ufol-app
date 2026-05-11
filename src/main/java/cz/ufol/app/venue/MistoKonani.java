@@ -1,8 +1,10 @@
 package cz.ufol.app.venue;
 
+import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
@@ -43,15 +45,13 @@ public class MistoKonani {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         MistoKonani that = (MistoKonani) o;
-        return Objects.equals(nazev, that.nazev)
-                && Objects.equals(ulice, that.ulice)
-                && Objects.equals(mesto, that.mesto);
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nazev, ulice, mesto);
+        return Hibernate.getClass(this).hashCode();
     }
 }

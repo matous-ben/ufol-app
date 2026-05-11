@@ -20,15 +20,6 @@ public class AdminDashboardController {
     private final DashboardService dashboardService;
 
     @GetMapping
-    @Operation(summary = "Admin dashboard", description = "Přehled statistik ligy a rychle akce")
-    @ApiResponse(
-            responseCode = "200",
-            description = "Úspěšně vyrenderovaná HTML stránka",
-            content = @Content(
-                    mediaType = "text/html",
-                    schema = @Schema(type = "string")
-            )
-    )
     public String dashboard(Model model) {
         var data = dashboardService.getDashboardData();
         model.addAttribute("zapasyBezVysledku", data.zapasyBezVysledku());

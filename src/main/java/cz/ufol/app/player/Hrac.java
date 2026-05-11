@@ -1,8 +1,10 @@
 package cz.ufol.app.player;
 
+import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -44,15 +46,13 @@ public class Hrac {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Hrac hrac = (Hrac) o;
-        return Objects.equals(jmeno, hrac.jmeno)
-                && Objects.equals(prijmeni, hrac.prijmeni)
-                && Objects.equals(datumNarozeni, hrac.datumNarozeni);
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Hrac that = (Hrac) o;
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(jmeno, prijmeni, datumNarozeni);
+        return Hibernate.getClass(this).hashCode();
     }
 }

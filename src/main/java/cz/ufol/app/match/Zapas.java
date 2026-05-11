@@ -3,9 +3,11 @@ package cz.ufol.app.match;
 
 import cz.ufol.app.season.Rocnik;
 import cz.ufol.app.team.Tym;
+import cz.ufol.app.university.Univerzita;
 import cz.ufol.app.venue.MistoKonani;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -65,17 +67,14 @@ public class Zapas {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Zapas zapas = (Zapas) o;
-        return Objects.equals(rocnikId(), zapas.rocnikId())
-                && Objects.equals(domaciTymId(), zapas.domaciTymId())
-                && Objects.equals(hosteTymId(), zapas.hosteTymId())
-                && Objects.equals(datumCas, zapas.datumCas);
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Zapas that = (Zapas) o;
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(rocnikId(), domaciTymId(), hosteTymId(), datumCas);
+        return Hibernate.getClass(this).hashCode();
     }
 
     private Long rocnikId() {

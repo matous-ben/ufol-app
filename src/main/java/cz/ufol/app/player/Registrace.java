@@ -2,8 +2,10 @@ package cz.ufol.app.player;
 
 import cz.ufol.app.season.Rocnik;
 import cz.ufol.app.team.Tym;
+import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
@@ -45,15 +47,14 @@ public class Registrace {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Registrace that = (Registrace) o;
-        return Objects.equals(hracId(), that.hracId())
-                && Objects.equals(rocnikId(), that.rocnikId());
+        return id != null && id.equals(that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(hracId(), rocnikId());
+        return Hibernate.getClass(this).hashCode();
     }
 
     private Long hracId() {
