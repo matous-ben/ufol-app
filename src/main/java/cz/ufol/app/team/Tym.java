@@ -5,6 +5,7 @@ import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
@@ -42,13 +43,13 @@ public class Tym {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         Tym tym = (Tym) o;
-        return Objects.equals(nazev, tym.nazev);
+        return id != null && Objects.equals(id, tym.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nazev);
+        return id != null ? id.hashCode() : System.identityHashCode(this);
     }
 }
