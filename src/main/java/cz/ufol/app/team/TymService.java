@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -78,5 +79,70 @@ public class TymService {
     public ServiceResult deleteAdminTym(Long id) {
         tymRepository.deleteById(id);
         return new ServiceResult("/admin/tymy", "success", "Tým byl smazán.");
+    }
+
+    @Transactional(readOnly = true)
+    public List<Tym> findAllApi() {
+        return tymRepository.findAllByOrderByNazevAsc();
+    }
+
+    @Transactional(readOnly = true)
+    public Tym findByIdApi(Long id) {
+        return tymRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + id + " not found"));
+    }
+
+    @Transactional
+    public Tym createApi(String nazev, Long univerzitaId, boolean aktivni) {
+        String trimmedNazev = nazev == null ? "" : nazev.trim();
+        var univerzita = univerzitaRepository.findById(univerzitaId)
+                .orElseThrow(() -> new NoSuchElementException("University with id " + univerzitaId + " not found"));
+
+        return tymRepository.save(Tym.builder()
+                .nazev(trimmedNazev)
+                .univerzita(univerzita)
+                .aktivni(aktivni)
+                .build());
+    }
+
+    @Transactional
+    public Tym updateApi(Long id, String nazev, Long univerzitaId, boolean aktivni) {
+        var tym = tymRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + id + " not found"));
+        var univerzita = univerzitaRepository.findById(univerzitaId)
+                .orElseThrow(() -> new NoSuchElementException("University with id " + univerzitaId + " not found"));
+
+        tym.setNazev(nazev == null ? "" : nazev.trim());
+        tym.setUniverzita(univerzita);
+        tym.setAktivni(aktivni);
+        return tymRepository.save(tym);
+    }
+
+    @Transactional
+    public Tym patchApi(Long id, String nazev, Long univerzitaId, Boolean aktivni) {
+        var tym = tymRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + id + " not found"));
+
+        if (nazev != null) {
+            tym.setNazev(nazev.trim());
+        }
+        if (univerzitaId != null) {
+            var univerzita = univerzitaRepository.findById(univerzitaId)
+                    .orElseThrow(() -> new NoSuchElementException("University with id " + univerzitaId + " not found"));
+            tym.setUniverzita(univerzita);
+        }
+        if (aktivni != null) {
+            tym.setAktivni(aktivni);
+        }
+
+        return tymRepository.save(tym);
+    }
+
+    @Transactional
+    public void deleteApi(Long id) {
+        if (!tymRepository.existsById(id)) {
+            throw new NoSuchElementException("Team with id " + id + " not found");
+        }
+        tymRepository.deleteById(id);
     }
 }
