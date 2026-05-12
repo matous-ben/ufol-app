@@ -17,6 +17,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -225,6 +226,135 @@ public class ZapasService {
         }
         zapasRepository.deleteById(id);
         return new ServiceResult("/admin/zapasy", "success", "Zápas byl smazán.");
+    }
+
+    @Transactional(readOnly = true)
+    public List<Zapas> findAllApi() {
+        return zapasRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Zapas findByIdApi(Long id) {
+        return zapasRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Match with id " + id + " not found"));
+    }
+
+    @Transactional
+    public Zapas createApi(Long rocnikId,
+                           Long domaciTymId,
+                           Long hosteTymId,
+                           Long mistoKonaniId,
+                           LocalDateTime datumCas,
+                           boolean odehran,
+                           Integer domaciSkore,
+                           Integer hosteSkore) {
+        var rocnik = rocnikRepository.findById(rocnikId)
+                .orElseThrow(() -> new NoSuchElementException("Season with id " + rocnikId + " not found"));
+        var domaciTym = tymRepository.findById(domaciTymId)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + domaciTymId + " not found"));
+        var hosteTym = tymRepository.findById(hosteTymId)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + hosteTymId + " not found"));
+        var mistoKonani = mistoKonaniId == null ? null : mistoKonaniRepository.findById(mistoKonaniId)
+                .orElseThrow(() -> new NoSuchElementException("Venue with id " + mistoKonaniId + " not found"));
+
+        return zapasRepository.save(Zapas.builder()
+                .rocnik(rocnik)
+                .domaciTym(domaciTym)
+                .hosteTym(hosteTym)
+                .mistoKonani(mistoKonani)
+                .datumCas(datumCas)
+                .odehran(odehran)
+                .domaciSkore(domaciSkore)
+                .hosteSkore(hosteSkore)
+                .build());
+    }
+
+    @Transactional
+    public Zapas updateApi(Long id,
+                           Long rocnikId,
+                           Long domaciTymId,
+                           Long hosteTymId,
+                           Long mistoKonaniId,
+                           LocalDateTime datumCas,
+                           boolean odehran,
+                           Integer domaciSkore,
+                           Integer hosteSkore) {
+        var zapas = zapasRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Match with id " + id + " not found"));
+        var rocnik = rocnikRepository.findById(rocnikId)
+                .orElseThrow(() -> new NoSuchElementException("Season with id " + rocnikId + " not found"));
+        var domaciTym = tymRepository.findById(domaciTymId)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + domaciTymId + " not found"));
+        var hosteTym = tymRepository.findById(hosteTymId)
+                .orElseThrow(() -> new NoSuchElementException("Team with id " + hosteTymId + " not found"));
+        var mistoKonani = mistoKonaniId == null ? null : mistoKonaniRepository.findById(mistoKonaniId)
+                .orElseThrow(() -> new NoSuchElementException("Venue with id " + mistoKonaniId + " not found"));
+
+        zapas.setRocnik(rocnik);
+        zapas.setDomaciTym(domaciTym);
+        zapas.setHosteTym(hosteTym);
+        zapas.setMistoKonani(mistoKonani);
+        zapas.setDatumCas(datumCas);
+        zapas.setOdehran(odehran);
+        zapas.setDomaciSkore(domaciSkore);
+        zapas.setHosteSkore(hosteSkore);
+        return zapasRepository.save(zapas);
+    }
+
+    @Transactional
+    public Zapas patchApi(Long id,
+                          Long rocnikId,
+                          Long domaciTymId,
+                          Long hosteTymId,
+                          Long mistoKonaniId,
+                          LocalDateTime datumCas,
+                          Boolean odehran,
+                          Integer domaciSkore,
+                          Integer hosteSkore) {
+        var zapas = zapasRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Match with id " + id + " not found"));
+
+        if (rocnikId != null) {
+            var rocnik = rocnikRepository.findById(rocnikId)
+                    .orElseThrow(() -> new NoSuchElementException("Season with id " + rocnikId + " not found"));
+            zapas.setRocnik(rocnik);
+        }
+        if (domaciTymId != null) {
+            var domaciTym = tymRepository.findById(domaciTymId)
+                    .orElseThrow(() -> new NoSuchElementException("Team with id " + domaciTymId + " not found"));
+            zapas.setDomaciTym(domaciTym);
+        }
+        if (hosteTymId != null) {
+            var hosteTym = tymRepository.findById(hosteTymId)
+                    .orElseThrow(() -> new NoSuchElementException("Team with id " + hosteTymId + " not found"));
+            zapas.setHosteTym(hosteTym);
+        }
+        if (mistoKonaniId != null) {
+            var mistoKonani = mistoKonaniRepository.findById(mistoKonaniId)
+                    .orElseThrow(() -> new NoSuchElementException("Venue with id " + mistoKonaniId + " not found"));
+            zapas.setMistoKonani(mistoKonani);
+        }
+        if (datumCas != null) {
+            zapas.setDatumCas(datumCas);
+        }
+        if (odehran != null) {
+            zapas.setOdehran(odehran);
+        }
+        if (domaciSkore != null) {
+            zapas.setDomaciSkore(domaciSkore);
+        }
+        if (hosteSkore != null) {
+            zapas.setHosteSkore(hosteSkore);
+        }
+        return zapasRepository.save(zapas);
+    }
+
+    @Transactional
+    public void deleteApi(Long id) {
+        if (!zapasRepository.existsById(id)) {
+            throw new NoSuchElementException("Match with id " + id + " not found");
+        }
+        zapasRepository.deleteById(id);
     }
 
     private String firstValue(String[] values) {
