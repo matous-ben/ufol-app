@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -158,5 +159,70 @@ public class HracService {
 		smazatHraceVcetneHistorie(hracId);
 		String redirectPath = tymId == null ? "/admin/hraci" : "/admin/hraci?tymId=" + tymId;
 		return new ServiceResult(redirectPath, "success", "Hráč byl odebrán.");
+	}
+
+	@Transactional(readOnly = true)
+	public List<Hrac> findAllApi() {
+		return hracRepository.findAllByOrderByPrijmeniAscJmenoAsc();
+	}
+
+	@Transactional(readOnly = true)
+	public Hrac findByIdApi(Long id) {
+		return hracRepository.findById(id)
+				.orElseThrow(() -> new NoSuchElementException("Player with id " + id + " not found"));
+	}
+
+	@Transactional
+	public Hrac createApi(String jmeno, String prijmeni, LocalDate datumNarozeni, String fotoUrl) {
+		if (jmeno == null || prijmeni == null) {
+			throw new IllegalArgumentException("Player first name and last name are required");
+		}
+		return hracRepository.save(Hrac.builder()
+				.jmeno(jmeno.trim())
+				.prijmeni(prijmeni.trim())
+				.datumNarozeni(datumNarozeni)
+				.fotoUrl(fotoUrl)
+				.build());
+	}
+
+	@Transactional
+	public Hrac updateApi(Long id, String jmeno, String prijmeni, LocalDate datumNarozeni, String fotoUrl) {
+		if (jmeno == null || prijmeni == null) {
+			throw new IllegalArgumentException("Player first name and last name are required");
+		}
+		var hrac = hracRepository.findById(id)
+				.orElseThrow(() -> new NoSuchElementException("Player with id " + id + " not found"));
+		hrac.setJmeno(jmeno.trim());
+		hrac.setPrijmeni(prijmeni.trim());
+		hrac.setDatumNarozeni(datumNarozeni);
+		hrac.setFotoUrl(fotoUrl);
+		return hracRepository.save(hrac);
+	}
+
+	@Transactional
+	public Hrac patchApi(Long id, String jmeno, String prijmeni, LocalDate datumNarozeni, String fotoUrl) {
+		var hrac = hracRepository.findById(id)
+				.orElseThrow(() -> new NoSuchElementException("Player with id " + id + " not found"));
+		if (jmeno != null) {
+			hrac.setJmeno(jmeno.trim());
+		}
+		if (prijmeni != null) {
+			hrac.setPrijmeni(prijmeni.trim());
+		}
+		if (datumNarozeni != null) {
+			hrac.setDatumNarozeni(datumNarozeni);
+		}
+		if (fotoUrl != null) {
+			hrac.setFotoUrl(fotoUrl);
+		}
+		return hracRepository.save(hrac);
+	}
+
+	@Transactional
+	public void deleteApi(Long id) {
+		if (!hracRepository.existsById(id)) {
+			throw new NoSuchElementException("Player with id " + id + " not found");
+		}
+		smazatHraceVcetneHistorie(id);
 	}
 }
