@@ -2,7 +2,7 @@
 
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-brightgreen.svg)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue.svg)
 ![Docker](https://img.shields.io/badge/Docker-Enabled-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
