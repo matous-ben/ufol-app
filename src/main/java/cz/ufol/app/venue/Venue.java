@@ -1,18 +1,15 @@
 package cz.ufol.app.venue;
 
-import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import java.util.Objects;
-
 @Entity
 @Table(
-        name = "mista_konani",
+        name = "venues",
         indexes = {
-                @Index(name = "idx_mista_konani_nazev", columnList = "nazev")
+                @Index(name = "idx_venues_name", columnList = "name")
         }
 )
 @Getter
@@ -20,7 +17,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MistoKonani {
+public class Venue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,24 +26,24 @@ public class MistoKonani {
     private Long id;
 
     @NotBlank
-    @Column(length = 100, nullable = false)
-    private String nazev;
+    @Column(name = "name", length = 100, nullable = false)
+    private String name;
 
-    @Column(length = 100)
-    private String ulice;
+    @Column(name = "street", length = 100)
+    private String street;
 
     @NotBlank
-    @Column(length = 100, nullable = false)
-    private String mesto;
+    @Column(name = "city", length = 100, nullable = false)
+    private String city;
 
-    @Column(length = 5)
-    private String psc;
+    @Column(name = "postal_code", length = 10)
+    private String postalCode;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        MistoKonani that = (MistoKonani) o;
+        Venue that = (Venue) o;
         return id != null && id.equals(that.id);
     }
 

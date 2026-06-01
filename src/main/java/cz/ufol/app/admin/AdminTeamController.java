@@ -1,6 +1,6 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.team.TymService;
+import cz.ufol.app.team.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,9 +16,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/tymy")
 @RequiredArgsConstructor
 @Tag(name = "Admin - týmy", description = "Správa týmů — vyžaduje přihlášení")
-public class AdminTymController {
+public class AdminTeamController {
 
-    private final TymService tymService;
+    private final TeamService teamService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - týmy", description = "Správa jednotlivých týmů")
@@ -31,19 +31,19 @@ public class AdminTymController {
             )
     )
     public String list(Model model) {
-        model.addAttribute("tymy", tymService.findAllAdminTymy());
-        model.addAttribute("activePage", "tymy");
-        return "admin/tymy/list";
+        model.addAttribute("tymy", teamService.findAllAdminTeams());
+        model.addAttribute("activePage", "teams");
+        return "admin/teams/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        var data = tymService.getCreateFormData();
-        model.addAttribute("tym", data.tym());
-        model.addAttribute("univerzity", data.univerzity());
-        model.addAttribute("activePage", "tymy");
+        var data = teamService.getCreateFormData();
+        model.addAttribute("tym", data.team());
+        model.addAttribute("univerzity", data.universities());
+        model.addAttribute("activePage", "teams");
         model.addAttribute("formAction", data.formAction());
-        return "admin/tymy/form";
+        return "admin/teams/form";
     }
 
     @PostMapping("/novy")
@@ -51,19 +51,19 @@ public class AdminTymController {
                          @RequestParam Long univerzitaId,
                          @RequestParam(defaultValue = "true") boolean aktivni,
                          RedirectAttributes redirectAttributes) {
-        var result = tymService.createAdminTym(nazev, univerzitaId, aktivni);
+        var result = teamService.createAdminTeam(nazev, univerzitaId, aktivni);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @GetMapping("/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
-        var data = tymService.getEditFormData(id);
-        model.addAttribute("tym", data.tym());
-        model.addAttribute("univerzity", data.univerzity());
-        model.addAttribute("activePage", "tymy");
+        var data = teamService.getEditFormData(id);
+        model.addAttribute("tym", data.team());
+        model.addAttribute("univerzity", data.universities());
+        model.addAttribute("activePage", "teams");
         model.addAttribute("formAction", data.formAction());
-        return "admin/tymy/form";
+        return "admin/teams/form";
     }
 
     @PostMapping("/{id}/edit")
@@ -72,14 +72,14 @@ public class AdminTymController {
                        @RequestParam Long univerzitaId,
                        @RequestParam(defaultValue = "false") boolean aktivni,
                        RedirectAttributes redirectAttributes) {
-        var result = tymService.updateAdminTym(id, nazev, univerzitaId, aktivni);
+        var result = teamService.updateAdminTeam(id, nazev, univerzitaId, aktivni);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/smazat")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var result = tymService.deleteAdminTym(id);
+        var result = teamService.deleteAdminTeam(id);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }

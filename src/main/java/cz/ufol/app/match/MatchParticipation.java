@@ -1,28 +1,25 @@
 package cz.ufol.app.match;
 
-import cz.ufol.app.player.Registrace;
-import cz.ufol.app.university.Univerzita;
+import cz.ufol.app.player.Registration;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import java.util.Objects;
-
 @Entity
-@Table(name = "ucasti_v_zapasech",
+@Table(name = "match_participations",
     indexes = {
-        @Index(name = "idx_ucasti_zapas_id", columnList = "zapas_id"),
-        @Index(name = "idx_ucasti_registrace_id", columnList = "registrace_id")
+        @Index(name = "idx_match_participations_match_id", columnList = "match_id"),
+        @Index(name = "idx_match_participations_registration_id", columnList = "registration_id")
     },
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"zapas_id", "registrace_id"})
+        @UniqueConstraint(columnNames = {"match_id", "registration_id"})
     })
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UcastVZapase {
+public class MatchParticipation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,21 +28,21 @@ public class UcastVZapase {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // Match is loaded only for reporting/edit flows; lazy avoids default eager joins.
-    @JoinColumn(name = "zapas_id", nullable = false)
-    private Zapas zapas;
+    @JoinColumn(name = "match_id", nullable = false)
+    private Match match;
 
     @ManyToOne(fetch = FetchType.LAZY) // Registration/player details are needed only in selected screens; lazy is more efficient.
-    @JoinColumn(name = "registrace_id", nullable = false)
-    private Registrace registrace;
+    @JoinColumn(name = "registration_id", nullable = false)
+    private Registration registration;
 
     @Column
-    private Integer goly = 0;
+    private Integer goals = 0;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        UcastVZapase that = (UcastVZapase) o;
+        MatchParticipation that = (MatchParticipation) o;
         return id != null && id.equals(that.id);
     }
 
@@ -55,10 +52,10 @@ public class UcastVZapase {
     }
 
     private Long zapasId() {
-        return zapas != null ? zapas.getId() : null;
+        return match != null ? match.getId() : null;
     }
 
     private Long registraceId() {
-        return registrace != null ? registrace.getId() : null;
+        return registration != null ? registration.getId() : null;
     }
 }

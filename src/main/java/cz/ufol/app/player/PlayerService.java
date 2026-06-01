@@ -1,10 +1,11 @@
 package cz.ufol.app.player;
 
-import cz.ufol.app.match.UcastVZapaseRepository;
-import cz.ufol.app.season.Rocnik;
-import cz.ufol.app.season.RocnikRepository;
-import cz.ufol.app.team.Tym;
-import cz.ufol.app.team.TymRepository;
+import cz.ufol.app.match.MatchParticipation;
+import cz.ufol.app.match.MatchParticipationRepository;
+import cz.ufol.app.season.Season;
+import cz.ufol.app.season.SeasonRepository;
+import cz.ufol.app.team.Team;
+import cz.ufol.app.team.TeamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,146 +18,146 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class HracService {
+public class PlayerService {
 
-	private final HracRepository hracRepository;
-	private final RegistraceRepository registraceRepository;
-	private final UcastVZapaseRepository ucastVZapaseRepository;
-	private final TymRepository tymRepository;
-	private final RocnikRepository rocnikRepository;
+	private final PlayerRepository playerRepository;
+	private final RegistrationRepository registrationRepository;
+	private final MatchParticipationRepository matchParticipationRepository;
+	private final TeamRepository teamRepository;
+	private final SeasonRepository seasonRepository;
 
 	public record ServiceResult(String redirectPath, String flashType, String flashMessage) {}
-	public record AdminHracListData(
-			List<Tym> tymy,
-			Long selectedTymId,
-			Rocnik aktivniRocnik,
+	public record AdminPlayerListData(
+			List<Team> teams,
+			Long selectedTeamId,
+			Season activeSeason,
 			String error,
-			List<HracStatView> hracStats
+			List<PlayerStatView> playerStats
 	) {}
 
 	@Transactional
-	public void createHracSRegistraci(String jmeno,
-									  String prijmeni,
-									  LocalDate datumNarozeni,
-									  Tym tym,
-									  Rocnik rocnik) {
-		Hrac hrac = Hrac.builder()
-				.jmeno(jmeno.trim())
-				.prijmeni(prijmeni.trim())
-				.datumNarozeni(datumNarozeni)
+	public void createPlayerWithRegistration(String firstName,
+	                                         String lastName,
+	                                         LocalDate birthDate,
+	                                         Team team,
+	                                         Season season) {
+		Player player = Player.builder()
+				.firstName(firstName.trim())
+				.lastName(lastName.trim())
+				.birthDate(birthDate)
 				.build();
 
-		Hrac ulozenyHrac = hracRepository.save(hrac);
+		Player savePlayer = playerRepository.save(player);
 
-		Registrace registrace = Registrace.builder()
-				.hrac(ulozenyHrac)
-				.tym(tym)
-				.rocnik(rocnik)
+		Registration registration = Registration.builder()
+				.player(savePlayer)
+				.team(team)
+				.season(season)
 				.build();
 
-		registraceRepository.save(registrace);
+		registrationRepository.save(registration);
 	}
 
 	@Transactional
-	public void smazatHraceVcetneHistorie(Long hracId) {
-		List<Registrace> registrace = registraceRepository.findByHracId(hracId);
-		if (!registrace.isEmpty()) {
-			ucastVZapaseRepository.deleteByRegistraceIn(registrace);
-			registraceRepository.deleteAll(registrace);
+	public void deletePlayerIncludingHistory(Long playerId) {
+		List<Registration> registration = registrationRepository.findByPlayerId(playerId);
+		if (!registration.isEmpty()) {
+			matchParticipationRepository.deleteByRegistrationIn(registration);
+			registrationRepository.deleteAll(registration);
 		}
-		hracRepository.deleteById(hracId);
+		playerRepository.deleteById(playerId);
 	}
 
 	@Transactional(readOnly = true)
-	public List<HracStatView> najdiStatistikyTymuProRocnik(Tym tym, Rocnik rocnik) {
-		List<Registrace> registrace = registraceRepository
-				.findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(rocnik, tym);
+	public List<PlayerStatView> findTeamStatisticsForSeason(Team team, Season season) {
+		List<Registration> registration = registrationRepository
+				.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(season, team);
 
-		if (registrace.isEmpty()) {
+		if (registration.isEmpty()) {
 			return List.of();
 		}
 
-		List<cz.ufol.app.match.UcastVZapase> ucasti = ucastVZapaseRepository.findByRegistraceIn(registrace);
+		List<MatchParticipation> participations = matchParticipationRepository.findByRegistrationIn(registration);
 
-		Map<Long, Long> odehraneZapasyMap = ucasti.stream()
-				.collect(Collectors.groupingBy(u -> u.getRegistrace().getId(), Collectors.counting()));
+		Map<Long, Long> playedMatchesMap = participations.stream()
+				.collect(Collectors.groupingBy(u -> u.getRegistration().getId(), Collectors.counting()));
 
-		Map<Long, Long> golyMap = ucasti.stream()
+		Map<Long, Long> goalsMap = participations.stream()
 				.collect(Collectors.groupingBy(
-						u -> u.getRegistrace().getId(),
-						Collectors.summingLong(u -> u.getGoly() == null ? 0 : u.getGoly())
+						u -> u.getRegistration().getId(),
+						Collectors.summingLong(u -> u.getGoals() == null ? 0 : u.getGoals())
 				));
 
-		return registrace.stream()
-				.map(r -> new HracStatView(
+		return registration.stream()
+				.map(r -> new PlayerStatView(
 						r,
-						odehraneZapasyMap.getOrDefault(r.getId(), 0L),
-						golyMap.getOrDefault(r.getId(), 0L)
+						playedMatchesMap.getOrDefault(r.getId(), 0L),
+						goalsMap.getOrDefault(r.getId(), 0L)
 				))
 				.toList();
 	}
 
 	@Transactional(readOnly = true)
-	public AdminHracListData getAdminHracListData(Long tymId) {
-		var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
-		var tymy = tymRepository.findByAktivniTrue();
+	public AdminPlayerListData getAdminPlayerListData(Long teamId) {
+		var activeSeason = seasonRepository.findByActiveTrue().orElse(null);
+		var teams = teamRepository.findByActiveTrue();
 
-		if (aktivniRocnik == null) {
-			return new AdminHracListData(tymy, tymId, null, "Nejprve nastavte aktivní ročník.", List.of());
+		if (activeSeason == null) {
+			return new AdminPlayerListData(teams, teamId, null, "Nejprve nastavte aktivní ročník.", List.of());
 		}
-		if (tymId == null) {
-			return new AdminHracListData(tymy, null, aktivniRocnik, null, List.of());
-		}
-
-		var tymOpt = tymRepository.findById(tymId);
-		if (tymOpt.isEmpty()) {
-			return new AdminHracListData(tymy, tymId, aktivniRocnik, "Vybraný tým nebyl nalezen.", List.of());
+		if (teamId == null) {
+			return new AdminPlayerListData(teams, null, activeSeason, null, List.of());
 		}
 
-		return new AdminHracListData(
-				tymy,
-				tymId,
-				aktivniRocnik,
+		var teamOpt = teamRepository.findById(teamId);
+		if (teamOpt.isEmpty()) {
+			return new AdminPlayerListData(teams, teamId, activeSeason, "Vybraný tým nebyl nalezen.", List.of());
+		}
+
+		return new AdminPlayerListData(
+				teams,
+				teamId,
+				activeSeason,
 				null,
-				najdiStatistikyTymuProRocnik(tymOpt.get(), aktivniRocnik)
+				findTeamStatisticsForSeason(teamOpt.get(), activeSeason)
 		);
 	}
 
 	@Transactional
-	public ServiceResult createAdminHrac(String jmeno, String prijmeni, String datumNarozeni, Long tymId) {
-		String jmenoTrim = jmeno == null ? "" : jmeno.trim();
-		String prijmeniTrim = prijmeni == null ? "" : prijmeni.trim();
-		if (jmenoTrim.isBlank() || prijmeniTrim.isBlank()) {
-			return new ServiceResult("/admin/hraci?tymId=" + tymId, "error", "Jméno i příjmení jsou povinné.");
+	public ServiceResult createAdminPlayer(String firstName, String lastName, String birthDate, Long teamId) {
+		String firstNameTrimmed = firstName == null ? "" : firstName.trim();
+		String lastNameTrimmed = lastName == null ? "" : lastName.trim();
+		if (firstNameTrimmed.isBlank() || lastNameTrimmed.isBlank()) {
+			return new ServiceResult("/admin/hraci?teamId=" + teamId, "error", "Jméno i příjmení jsou povinné.");
 		}
 
-		var aktivniRocnikOpt = rocnikRepository.findByAktivniTrue();
-		if (aktivniRocnikOpt.isEmpty()) {
-			return new ServiceResult("/admin/hraci?tymId=" + tymId, "error", "Nejprve nastavte aktivní ročník.");
+		var activeSeasonOpt = seasonRepository.findByActiveTrue();
+		if (activeSeasonOpt.isEmpty()) {
+			return new ServiceResult("/admin/hraci?teamId=" + teamId, "error", "Nejprve nastavte aktivní ročník.");
 		}
 
-		var tymOpt = tymRepository.findById(tymId);
-		if (tymOpt.isEmpty()) {
+		var teamOpt = teamRepository.findById(teamId);
+		if (teamOpt.isEmpty()) {
 			return new ServiceResult("/admin/hraci", "error", "Vybraný tým nebyl nalezen.");
 		}
 
-		LocalDate parsedDatumNarozeni = null;
-		if (datumNarozeni != null && !datumNarozeni.isBlank()) {
+		LocalDate parsedBirthDate = null;
+		if (birthDate != null && !birthDate.isBlank()) {
 			try {
-				parsedDatumNarozeni = LocalDate.parse(datumNarozeni);
+				parsedBirthDate = LocalDate.parse(birthDate);
 			} catch (DateTimeParseException e) {
-				return new ServiceResult("/admin/hraci?tymId=" + tymId, "error", "Neplatný formát data narození.");
+				return new ServiceResult("/admin/hraci?teamId=" + teamId, "error", "Neplatný formát data narození.");
 			}
 		}
 
-		createHracSRegistraci(jmenoTrim, prijmeniTrim, parsedDatumNarozeni, tymOpt.get(), aktivniRocnikOpt.get());
-		return new ServiceResult("/admin/hraci?tymId=" + tymId, "success", "Hráč byl přidán do aktivního ročníku.");
+		createPlayerWithRegistration(firstNameTrimmed, lastNameTrimmed, parsedBirthDate, teamOpt.get(), activeSeasonOpt.get());
+		return new ServiceResult("/admin/hraci?teamId=" + teamId, "success", "Hráč byl přidán do aktivního ročníku.");
 	}
 
 	@Transactional
-	public ServiceResult deleteAdminHrac(Long hracId, Long tymId) {
-		smazatHraceVcetneHistorie(hracId);
-		String redirectPath = tymId == null ? "/admin/hraci" : "/admin/hraci?tymId=" + tymId;
+	public ServiceResult deleteAdminPlayer(Long PlayerId, Long teamId) {
+		deletePlayerIncludingHistory(PlayerId);
+		String redirectPath = teamId == null ? "/admin/hraci" : "/admin/hraci?teamId=" + teamId;
 		return new ServiceResult(redirectPath, "success", "Hráč byl odebrán.");
 	}
 }

@@ -1,6 +1,6 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.player.HracService;
+import cz.ufol.app.player.PlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,19 +10,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/admin/hraci")
 @RequiredArgsConstructor
-public class AdminHracController {
+public class AdminPlayerController {
 
-	private final HracService hracService;
+	private final PlayerService playerService;
 
 	@GetMapping
 	public String list(@RequestParam(required = false) Long tymId, Model model) {
-		var data = hracService.getAdminHracListData(tymId);
-		model.addAttribute("tymy", data.tymy());
-		model.addAttribute("selectedTymId", data.selectedTymId());
-		model.addAttribute("aktivniRocnik", data.aktivniRocnik());
+		var data = playerService.getAdminPlayerListData(tymId);
+		model.addAttribute("tymy", data.teams());
+		model.addAttribute("selectedTymId", data.selectedTeamId());
+		model.addAttribute("aktivniRocnik", data.activeSeason());
 		model.addAttribute("activePage", "hraci");
 		model.addAttribute("error", data.error());
-		model.addAttribute("hracStats", data.hracStats());
+		model.addAttribute("hracStats", data.playerStats());
 		return "admin/hraci/list";
 	}
 
@@ -32,7 +32,7 @@ public class AdminHracController {
 						 @RequestParam(required = false) String datumNarozeni,
 						 @RequestParam Long tymId,
 						 RedirectAttributes redirectAttributes) {
-		var result = hracService.createAdminHrac(jmeno, prijmeni, datumNarozeni, tymId);
+		var result = playerService.createAdminPlayer(jmeno, prijmeni, datumNarozeni, tymId);
 		redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
 		return "redirect:" + result.redirectPath();
 	}
@@ -41,7 +41,7 @@ public class AdminHracController {
 	public String delete(@PathVariable Long id,
 						 @RequestParam(required = false) Long tymId,
 						 RedirectAttributes redirectAttributes) {
-		var result = hracService.deleteAdminHrac(id, tymId);
+		var result = playerService.deleteAdminPlayer(id, tymId);
 		redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
 		return "redirect:" + result.redirectPath();
 	}

@@ -1,21 +1,18 @@
 package cz.ufol.app.event;
 
-import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.Hibernate;
 
-import java.util.Objects;
-
 @Entity
-@Table(name = "typy_udalosti")
+@Table(name = "event_types")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TypUdalosti {
+public class EventType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,18 +21,18 @@ public class TypUdalosti {
     private Long id;
 
     @NotBlank
-    @Column(length = 50, nullable = false, unique = true)
-    private String nazev;
+    @Column(name = "name", length = 50, nullable = false, unique = true)
+    private String name;
 
     @NotBlank
-    @Column(length = 10, nullable = false, unique = true)
-    private String kod;
+    @Column(name = "code", length = 10, nullable = false, unique = true)
+    private String code;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        TypUdalosti that = (TypUdalosti) o;
+        EventType that = (EventType) o;
         return id != null && id.equals(that.id);
     }
 

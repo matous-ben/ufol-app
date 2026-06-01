@@ -35,20 +35,20 @@ public class AdminMatchController {
             )
     )
     public String list(Model model) {
-        var data = matchService.getAdminZapasyListData();
-        model.addAttribute("aktivniRocnik", data.aktivniSeason());
-        model.addAttribute("naplanovane", data.naplanovane());
-        model.addAttribute("odehrane", data.odehrane());
+        var data = matchService.getAdminMatchesListData();
+        model.addAttribute("aktivniRocnik", data.activeSeason());
+        model.addAttribute("naplanovane", data.upcoming());
+        model.addAttribute("odehrane", data.played());
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        var data = matchService.getAdminZapasFormData();
-        model.addAttribute("tymy", data.tymy());
-        model.addAttribute("rocniky", data.rocniky());
-        model.addAttribute("mistaKonani", data.mistaKonani());
+        var data = matchService.getAdminMatchFormData();
+        model.addAttribute("tymy", data.teams());
+        model.addAttribute("rocniky", data.seasons());
+        model.addAttribute("mistaKonani", data.venues());
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/form";
     }
@@ -60,7 +60,7 @@ public class AdminMatchController {
                          @RequestParam(required = false) Long mistoKonaniId,
                          @RequestParam(required = false) String datumCas,
                          RedirectAttributes redirectAttributes) {
-        var result = matchService.createAdminZapas(domaciTymId, hosteTymId, rocnikId, mistoKonaniId, datumCas);
+        var result = matchService.createAdminMatch(domaciTymId, hosteTymId, rocnikId, mistoKonaniId, datumCas);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
@@ -68,17 +68,17 @@ public class AdminMatchController {
     // UC-02: Enter match result
     @GetMapping("/{id}/vysledek")
     public String vysledekForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        var data = matchService.getAdminVysledekFormData(id);
+        var data = matchService.getAdminResultFormData(id);
         if (!data.found()) {
             redirectAttributes.addFlashAttribute("error", data.errorMessage());
             return "redirect:/admin/zapasy";
         }
 
         model.addAttribute("zapas", data.match());
-        model.addAttribute("domaciRegistrace", data.domaciRegistration());
-        model.addAttribute("hosteRegistrace", data.hosteRegistration());
-        model.addAttribute("selectedRegistraceIds", data.selectedRegistraceIds());
-        model.addAttribute("golyMap", data.golyMap());
+        model.addAttribute("domaciRegistrace", data.homeTeamRegistration());
+        model.addAttribute("hosteRegistrace", data.awayTeamRegistration());
+        model.addAttribute("selectedRegistraceIds", data.selectedRegistrationIds());
+        model.addAttribute("golyMap", data.goalsMap());
         model.addAttribute("activePage", "zapasy");
         return "admin/zapasy/vysledek";
     }
@@ -90,14 +90,14 @@ public class AdminMatchController {
                            @RequestParam(required = false) List<Long> registraceIds,
                            HttpServletRequest request,
                            RedirectAttributes redirectAttributes) {
-        var result = matchService.ulozAdminVysledek(id, domaciSkore, hosteSkore, registraceIds, request.getParameterMap());
+        var result = matchService.saveAdminResult(id, domaciSkore, hosteSkore, registraceIds, request.getParameterMap());
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/smazat")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var result = matchService.smazAdminZapas(id);
+        var result = matchService.deleteAdminMatch(id);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }

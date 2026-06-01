@@ -1,19 +1,17 @@
 package cz.ufol.app.player;
 
-import cz.ufol.app.university.Univerzita;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDate;
-import java.util.Objects;
 
 @Entity
 @Table(
-        name = "hraci",
+        name = "players",
         indexes = {
-                @Index(name = "idx_hraci_prijmeni_jmeno", columnList = "prijmeni, jmeno")
+                @Index(name = "idx_players_last_name_first_name", columnList = "last_name, first_name")
         }
 )
 @Getter
@@ -21,7 +19,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Hrac {
+public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,24 +28,24 @@ public class Hrac {
     private Long id;
 
     @NotBlank
-    @Column(length = 50, nullable = false)
-    private String jmeno;
+    @Column(name = "first_name", length = 50, nullable = false)
+    private String firstName;
 
     @NotBlank
-    @Column(length = 50, nullable = false)
-    private String prijmeni;
+    @Column(name = "last_name", length = 50, nullable = false)
+    private String lastName;
 
-    @Column(name = "datum_narozeni")
-    private LocalDate datumNarozeni;
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
-    @Column(name = "foto_url", length = 255)
-    private String fotoUrl;
+    @Column(name = "photo_url", length = 255)
+    private String photoUrl;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Hrac that = (Hrac) o;
+        Player that = (Player) o;
         return id != null && id.equals(that.id);
     }
 

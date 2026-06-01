@@ -1,7 +1,7 @@
 package cz.ufol.app.player;
 
-public record HracStatView(
-        Registrace registrace,
+public record PlayerStatView (
+        Registration registration,
         long odehraneZapasy,
         long goly
 ) {

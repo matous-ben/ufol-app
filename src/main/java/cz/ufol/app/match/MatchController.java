@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @RequiredArgsConstructor
 @Tag(name = "Zápasy", description = "Program a výsledky zápasů")
-public class ZapasController {
+public class MatchController {
 
-    private final ZapasService zapasService;
+    private final MatchService matchService;
 
     @GetMapping("/zapasy")
     @Operation(
@@ -30,11 +30,11 @@ public class ZapasController {
                     schema = @Schema(type = "string")
             )
     )
-    public String zapasy(Model model) {
-        model.addAttribute("naplanovane", zapasService.findNaplanovane());
-        model.addAttribute("odehrane", zapasService.findOdehrane());
-        model.addAttribute("upcomingMatches", zapasService.findTop3Naplanovane());
+    public String matches(Model model) {
+        model.addAttribute("naplanovane", matchService.findUpcoming());
+        model.addAttribute("odehrane", matchService.findPlayed());
+        model.addAttribute("upcomingMatches", matchService.findTop3Upcoming());
         model.addAttribute("activePage", "zapasy");
-        return "public/zapasy";
+        return "matches";
     }
 }

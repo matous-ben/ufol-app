@@ -1,7 +1,7 @@
 package cz.ufol.app.team;
 
-import cz.ufol.app.player.HracService;
-import cz.ufol.app.season.RocnikRepository;
+import cz.ufol.app.player.PlayerService;
+import cz.ufol.app.season.SeasonRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,12 +20,12 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @Tag(name = "Týmy", description = "Přehled týmů")
-public class TymController {
+public class TeamController {
 
-    private final TymService tymService;
-    private final TymRepository tymRepository;
-    private final RocnikRepository rocnikRepository;
-    private final HracService hracService;
+    private final TeamService teamService;
+    private final TeamRepository teamRepository;
+    private final SeasonRepository seasonRepository;
+    private final PlayerService playerService;
 
     @GetMapping("/tymy")
     @Operation(summary = "Zobrazit všechny týmy")
@@ -37,25 +37,25 @@ public class TymController {
                     schema = @Schema(type = "string")
             )
     )
-    public String tymy(Model model) {
-        model.addAttribute("tymy", tymService.findAllAktivni());
-        model.addAttribute("activePage", "tymy");
-        return "public/tymy";
+    public String teams(Model model) {
+        model.addAttribute("tymy", teamService.findAllActive());
+        model.addAttribute("activePage", "teams");
+        return "teams";
     }
 
     @GetMapping("/tymy/{id}")
-    public String tymDetail(@PathVariable Long id, Model model) {
-        var tym = tymRepository.findById(id)
+    public String teamDetail(@PathVariable Long id, Model model) {
+        var team = teamRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
-        var hracStats = aktivniRocnik != null
-                ? hracService.najdiStatistikyTymuProRocnik(tym, aktivniRocnik)
+        var activeSeason = seasonRepository.findByActiveTrue().orElse(null);
+        var playerStats = activeSeason != null
+                ? playerService.findTeamStatisticsForSeason(team, activeSeason)
                 : List.of();
 
-        model.addAttribute("tym", tym);
-        model.addAttribute("hracStats", hracStats);
-        model.addAttribute("activePage", "tymy");
-        return "public/tym-detail";
+        model.addAttribute("tym", team);
+        model.addAttribute("hracStats", playerStats);
+        model.addAttribute("activePage", "teams");
+        return "team-detail";
     }
 }

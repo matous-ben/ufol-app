@@ -9,10 +9,10 @@ import org.hibernate.Hibernate;
 
 @Entity
 @Table(
-        name = "rocniky",
+        name = "seasons",
         indexes = {
-                @Index(name = "idx_rocniky_aktivni", columnList = "aktivni"),
-                @Index(name = "idx_rocniky_rok_od", columnList = "rok_od")
+                @Index(name = "idx_seasons_active", columnList = "active"),
+                @Index(name = "idx_seasons_year_from", columnList = "year_from")
         }
 )
 @Getter
@@ -20,7 +20,7 @@ import org.hibernate.Hibernate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Rocnik {
+public class Season {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
@@ -28,26 +28,26 @@ public class Rocnik {
     private Long id;
 
     @NotBlank
-    @Column(length = 50, nullable = false, unique = true)
-    private String nazev;
+    @Column(name = "name", length = 50, nullable = false, unique = true)
+    private String name;
 
     @NotNull
-    @Column(name = "rok_od", nullable = false)
-    private Integer rokOd;
+    @Column(name = "year_from", nullable = false)
+    private Integer yearFrom;
 
     @NotNull
-    @Column(name = "rok_do", nullable = false)
-    private Integer rokDo;
+    @Column(name = "year_to", nullable = false)
+    private Integer yearTo;
 
-    @Column(nullable = false)
-    private boolean aktivni = true;
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Rocnik rocnik = (Rocnik) o;
-        return id != null && id.equals(rocnik.id);
+        Season season = (Season) o;
+        return id != null && id.equals(season.id);
     }
 
     @Override

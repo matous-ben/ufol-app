@@ -7,13 +7,13 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 @Entity
-@Table(name = "univerzity")
+@Table(name = "universities")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Univerzita {
+public class University {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
@@ -21,12 +21,12 @@ public class Univerzita {
     private Long id;
 
     @NotBlank
-    @Column(length = 150, nullable = false, unique = true)
-    private String nazev;
+    @Column(name = "name", length = 150, nullable = false, unique = true)
+    private String name;
 
     @NotBlank
-    @Column(length = 15, nullable = false, unique = true)
-    private String zkratka;
+    @Column(name = "abbreviation", length = 15, nullable = false, unique = true)
+    private String abbreviation;
 
     @Column(name = "logo_file", length = 50)
     private String logoFile;
@@ -35,7 +35,7 @@ public class Univerzita {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Univerzita that = (Univerzita) o;
+        University that = (University) o;
         return id != null && id.equals(that.id);
     }
 

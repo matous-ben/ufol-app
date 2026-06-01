@@ -4,21 +4,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface TymRepository extends JpaRepository<Tym, Long> {
-    @EntityGraph(attributePaths = {"univerzita"})
-    List<Tym> findByAktivniTrue();
+public interface TeamRepository extends JpaRepository<Team, Long> {
+    @EntityGraph(attributePaths = {"university"})
+    List<Team> findByActiveTrue();
 
-    @EntityGraph(attributePaths = {"univerzita"})
-    List<Tym> findAllByOrderByNazevAsc();
+    @EntityGraph(attributePaths = {"university"})
+    List<Team> findAllByOrderByNameAsc();
 
-    @EntityGraph(attributePaths = {"univerzita"})
-    Optional<Tym> findById(Long id);
+    boolean existsByNameIgnoreCase(String name);
 
-    // Pro vytvoření nového týmu
-    boolean existsByNazevIgnoreCase(String nazev);
-
-    // Pro editaci existujícího týmu (ignoruje shodu s vlastním ID)
-    boolean existsByNazevIgnoreCaseAndIdNot(String nazev, Long id);
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }

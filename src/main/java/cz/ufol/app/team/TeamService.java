@@ -1,7 +1,7 @@
 package cz.ufol.app.team;
 
-import cz.ufol.app.university.Univerzita;
-import cz.ufol.app.university.UniverzitaRepository;
+import cz.ufol.app.university.University;
+import cz.ufol.app.university.UniversityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,73 +10,73 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TymService {
-    private final TymRepository tymRepository;
-    private final UniverzitaRepository univerzitaRepository;
+public class TeamService {
+    private final TeamRepository teamRepository;
+    private final UniversityRepository universityRepository;
 
     public record ServiceResult(String redirectPath, String flashType, String flashMessage) {}
-    public record AdminTymyFormData(Tym tym, List<Univerzita> univerzity, String formAction) {}
+    public record AdminTeamsFormData(Team team, List<University> universities, String formAction) {}
 
     @Transactional(readOnly = true)
-    public List<Tym> findAllAktivni() {
-        return tymRepository.findByAktivniTrue();
+    public List<Team> findAllActive() {
+        return teamRepository.findByActiveTrue();
     }
 
     @Transactional(readOnly = true)
-    public List<Tym> findAllAdminTymy() {
-        return tymRepository.findAllByOrderByNazevAsc();
+    public List<Team> findAllAdminTeams() {
+        return teamRepository.findAllByOrderByNameAsc();
     }
 
     @Transactional(readOnly = true)
-    public AdminTymyFormData getCreateFormData() {
-        return new AdminTymyFormData(new Tym(), univerzitaRepository.findAllByOrderByNazevAsc(), "/admin/tymy/novy");
+    public AdminTeamsFormData getCreateFormData() {
+        return new AdminTeamsFormData(new Team(), universityRepository.findAllByOrderByNameAsc(), "/admin/teams/novy");
     }
 
     @Transactional(readOnly = true)
-    public AdminTymyFormData getEditFormData(Long id) {
-        return new AdminTymyFormData(
-                tymRepository.findById(id).orElseThrow(),
-                univerzitaRepository.findAllByOrderByNazevAsc(),
-                "/admin/tymy/" + id + "/edit"
+    public AdminTeamsFormData getEditFormData(Long id) {
+        return new AdminTeamsFormData(
+                teamRepository.findById(id).orElseThrow(),
+                universityRepository.findAllByOrderByNameAsc(),
+                "/admin/teams/" + id + "/edit"
         );
     }
 
     @Transactional
-    public ServiceResult createAdminTym(String nazev, Long univerzitaId, boolean aktivni) {
-        String trimmedNazev = nazev == null ? "" : nazev.trim();
-        if (tymRepository.existsByNazevIgnoreCase(trimmedNazev)) {
-            return new ServiceResult("/admin/tymy/novy", "error", "Tým s názvem '" + trimmedNazev + "' již existuje.");
+    public ServiceResult createAdminTeam(String name, Long universityId, boolean active) {
+        String trimmedName = name == null ? "" : name.trim();
+        if (teamRepository.existsByNameIgnoreCase(trimmedName)) {
+            return new ServiceResult("/admin/teams/novy", "error", "Tým s názvem '" + trimmedName + "' již existuje.");
         }
 
-        var univerzita = univerzitaRepository.findById(univerzitaId).orElseThrow();
-        tymRepository.save(Tym.builder()
-                .nazev(trimmedNazev)
-                .univerzita(univerzita)
-                .aktivni(aktivni)
+        var university = universityRepository.findById(universityId).orElseThrow();
+        teamRepository.save(Team.builder()
+                .name(trimmedName)
+                .university(university)
+                .active(active)
                 .build());
-        return new ServiceResult("/admin/tymy", "success", "Tým byl úspěšně přidán.");
+        return new ServiceResult("/admin/teams", "success", "Tým byl úspěšně přidán.");
     }
 
     @Transactional
-    public ServiceResult updateAdminTym(Long id, String nazev, Long univerzitaId, boolean aktivni) {
-        String trimmedNazev = nazev == null ? "" : nazev.trim();
-        if (tymRepository.existsByNazevIgnoreCaseAndIdNot(trimmedNazev, id)) {
-            return new ServiceResult("/admin/tymy/" + id + "/edit", "error", "Tým s názvem '" + trimmedNazev + "' již existuje.");
+    public ServiceResult updateAdminTeam(Long id, String name, Long universityId, boolean active) {
+        String trimmedName = name == null ? "" : name.trim();
+        if (teamRepository.existsByNameIgnoreCaseAndIdNot(trimmedName, id)) {
+            return new ServiceResult("/admin/teams/" + id + "/edit", "error", "Tým s názvem '" + trimmedName + "' již existuje.");
         }
 
-        var tym = tymRepository.findById(id).orElseThrow();
-        var univerzita = univerzitaRepository.findById(univerzitaId).orElseThrow();
-        tym.setNazev(trimmedNazev);
-        tym.setUniverzita(univerzita);
-        tym.setAktivni(aktivni);
-        tymRepository.save(tym);
+        var team = teamRepository.findById(id).orElseThrow();
+        var university = universityRepository.findById(universityId).orElseThrow();
+        team.setName(trimmedName);
+        team.setUniversity(university);
+        team.setActive(active);
+        teamRepository.save(team);
 
-        return new ServiceResult("/admin/tymy", "success", "Tým byl upraven.");
+        return new ServiceResult("/admin/teams", "success", "Tým byl upraven.");
     }
 
     @Transactional
-    public ServiceResult deleteAdminTym(Long id) {
-        tymRepository.deleteById(id);
-        return new ServiceResult("/admin/tymy", "success", "Tým byl smazán.");
+    public ServiceResult deleteAdminTeam(Long id) {
+        teamRepository.deleteById(id);
+        return new ServiceResult("/admin/teams", "success", "Tým byl smazán.");
     }
 }

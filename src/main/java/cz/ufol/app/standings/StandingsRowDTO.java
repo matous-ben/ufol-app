@@ -6,22 +6,22 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class StandingsRowDTO {
-    private String nazevTymu;
-    private Long tymId;
-    private int odehrane;
-    private int vyhry;
-    private int remizy;
-    private int prohry;
-    private int vstreleneGoly;
-    private int obdrzeneGoly;
-    private int body;
+    private String teamName;
+    private Long teamId;
+    private int played;
+    private int wins;
+    private int draws;
+    private int losses;
+    private int goalsFor;
+    private int goalsAgainst;
+    private int points;
     private String logoFile;
 
-    public int getGoloveSkore() {
-        return vstreleneGoly - obdrzeneGoly;
+    public int getGoalDifference() {
+        return goalsFor - goalsAgainst;
     }
 
-    public String getSkore() {
-        return vstreleneGoly + ":" + obdrzeneGoly;
+    public String getScore() {
+        return goalsFor + ":" + goalsAgainst;
     }
 }

@@ -1,26 +1,24 @@
 package cz.ufol.app.match;
 
 
-import cz.ufol.app.season.Rocnik;
-import cz.ufol.app.team.Tym;
-import cz.ufol.app.university.Univerzita;
-import cz.ufol.app.venue.MistoKonani;
+import cz.ufol.app.season.Season;
+import cz.ufol.app.team.Team;
+import cz.ufol.app.venue.Venue;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Entity
 @Table(
-        name = "zapasy",
+        name = "matches",
         indexes = {
-                @Index(name = "idx_zapasy_rocnik_id", columnList = "rocnik_id"),
-                @Index(name = "idx_zapasy_domaci_tym_id", columnList = "domaci_tym_id"),
-                @Index(name = "idx_zapasy_hoste_tym_id", columnList = "hoste_tym_id"),
-                @Index(name = "idx_zapasy_misto_konani_id", columnList = "misto_konani_id"),
-                @Index(name = "idx_zapasy_odehran_datum", columnList = "odehran, datum_cas")
+                @Index(name = "idx_matches_season_id", columnList = "season_id"),
+                @Index(name = "idx_matches_home_team_id", columnList = "home_team_id"),
+                @Index(name = "idx_matches_away_team_id", columnList = "away_team_id"),
+                @Index(name = "idx_matches_venue_id", columnList = "venue_id"),
+                @Index(name = "idx_matches_played_datetime", columnList = "played, match_datetime")
         }
 )
 @Getter
@@ -28,7 +26,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Zapas {
+public class Match {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,38 +35,38 @@ public class Zapas {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY) // Season relation is needed only in selected use-cases; lazy avoids unnecessary joins.
-    @JoinColumn(name = "rocnik_id", nullable = false)
-    private Rocnik rocnik;
+    @JoinColumn(name = "season_id", nullable = false)
+    private Season season;
 
     @ManyToOne(fetch = FetchType.LAZY) // Team details are loaded for match pages only; lazy keeps generic queries lightweight.
-    @JoinColumn(name = "domaci_tym_id", nullable = false)
-    private Tym domaciTym;
+    @JoinColumn(name = "home_team_id", nullable = false)
+    private Team homeTeam;
 
     @ManyToOne(fetch = FetchType.LAZY) // Away team is read conditionally; lazy prevents over-fetching in write paths.
-    @JoinColumn(name = "hoste_tym_id", nullable = false)
-    private Tym hosteTym;
+    @JoinColumn(name = "away_team_id", nullable = false)
+    private Team awayTeam;
 
     @ManyToOne(fetch = FetchType.LAZY) // Venue is optional and not always rendered, so lazy loading is preferable.
-    @JoinColumn(name = "misto_konani_id")
-    private MistoKonani mistoKonani;
+    @JoinColumn(name = "venue_id")
+    private Venue venue;
 
-    @Column(name = "datum_cas")
-    private LocalDateTime datumCas;
+    @Column(name = "match_datetime")
+    private LocalDateTime matchDatetime;
 
-    @Column(nullable = false)
-    private boolean odehran;
+    @Column(name = "played", nullable = false)
+    private boolean played;
 
-    @Column(name = "domaci_skore")
-    private Integer domaciSkore = 0;
+    @Column(name = "home_score")
+    private Integer homeScore = 0;
 
-    @Column(name = "hoste_skore")
-    private Integer hosteSkore = 0;
+    @Column(name = "away_score")
+    private Integer awayScore = 0;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Zapas that = (Zapas) o;
+        Match that = (Match) o;
         return id != null && id.equals(that.id);
     }
 
@@ -77,15 +75,15 @@ public class Zapas {
         return Hibernate.getClass(this).hashCode();
     }
 
-    private Long rocnikId() {
-        return rocnik != null ? rocnik.getId() : null;
+    private Long seasonId() {
+        return season != null ? season.getId() : null;
     }
 
-    private Long domaciTymId() {
-        return domaciTym != null ? domaciTym.getId() : null;
+    private Long homeTeamId() {
+        return homeTeam != null ? homeTeam.getId() : null;
     }
 
-    private Long hosteTymId() {
-        return hosteTym != null ? hosteTym.getId() : null;
+    private Long awayTeamId() {
+        return awayTeam != null ? awayTeam.getId() : null;
     }
 }

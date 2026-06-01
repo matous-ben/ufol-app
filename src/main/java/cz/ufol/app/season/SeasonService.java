@@ -9,88 +9,88 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class RocnikService {
+public class SeasonService {
 
-    private final RocnikRepository rocnikRepository;
+    private final SeasonRepository seasonRepository;
 
     public record ServiceResult(String redirectPath, String flashType, String flashMessage) {}
 
     @Transactional(readOnly = true)
-    public List<Rocnik> findAllByRokOdDesc() {
-        return rocnikRepository.findAllByOrderByRokOdDesc();
+    public List<Season> findAllByYearFromDesc() {
+        return seasonRepository.findAllByOrderByYearFromDesc();
     }
 
     @Transactional
-    public ServiceResult createAdminRocnik(String nazev, Integer rokOd, Integer rokDo) {
-        String trimmedNazev = nazev != null ? nazev.trim() : "";
+    public ServiceResult createAdminSeason(String name, Integer yearFrom, Integer yearTo) {
+        String trimmedName = name != null ? name.trim() : "";
 
-        if (trimmedNazev.isBlank()) {
-            return new ServiceResult("/admin/rocniky/novy", "error", "Název ročníku je povinný.");
+        if (trimmedName.isBlank()) {
+            return new ServiceResult("/admin/seasons/novy", "error", "Název ročníku je povinný.");
         }
-        if (rokOd == null || rokDo == null) {
-            return new ServiceResult("/admin/rocniky/novy", "error", "Rok od i rok do jsou povinné.");
+        if (yearFrom == null || yearTo == null) {
+            return new ServiceResult("/admin/seasons/novy", "error", "Rok od i rok do jsou povinné.");
         }
-        if (rokOd < 2000 || rokOd > 2100 || rokDo < 2000 || rokDo > 2100) {
-            return new ServiceResult("/admin/rocniky/novy", "error", "Rok musí být v intervalu 2000-2100.");
+        if (yearFrom < 2000 || yearFrom > 2100 || yearTo < 2000 || yearTo > 2100) {
+            return new ServiceResult("/admin/seasons/novy", "error", "Rok musí být v intervalu 2000-2100.");
         }
-        if (rokDo <= rokOd) {
-            return new ServiceResult("/admin/rocniky/novy", "error", "Rok do musí být větší než rok od.");
+        if (yearTo <= yearFrom) {
+            return new ServiceResult("/admin/seasons/novy", "error", "Rok do musí být větší než rok od.");
         }
-        if (rocnikRepository.existsByNazevIgnoreCase(trimmedNazev)) {
-            return new ServiceResult("/admin/rocniky/novy", "error", "Ročník s tímto názvem již existuje.");
+        if (seasonRepository.existsByNameIgnoreCase(trimmedName)) {
+            return new ServiceResult("/admin/seasons/novy", "error", "Ročník s tímto názvem již existuje.");
         }
 
-        rocnikRepository.save(Rocnik.builder()
-                .nazev(trimmedNazev)
-                .rokOd(rokOd)
-                .rokDo(rokDo)
-                .aktivni(false)
+        seasonRepository.save(Season.builder()
+                .name(trimmedName)
+                .yearFrom(yearFrom)
+                .yearTo(yearTo)
+                .active(false)
                 .build());
 
-        return new ServiceResult("/admin/rocniky", "success", "Ročník byl vytvořen.");
+        return new ServiceResult("/admin/seasons", "success", "Ročník byl vytvořen.");
     }
 
     @Transactional
-    public ServiceResult aktivovatRocnik(Long id) {
-        var rocnik = rocnikRepository.findById(id).orElse(null);
-        if (rocnik == null) {
-            return new ServiceResult("/admin/rocniky", "error", "Ročník nebyl nalezen.");
+    public ServiceResult activateSeason(Long id) {
+        var season = seasonRepository.findById(id).orElse(null);
+        if (season == null) {
+            return new ServiceResult("/admin/seasons", "error", "Ročník nebyl nalezen.");
         }
-        rocnikRepository.deactivateAll();
-        rocnik.setAktivni(true);
-        rocnikRepository.save(rocnik);
-        return new ServiceResult("/admin/rocniky", "success", "Ročník " + rocnik.getNazev() + " aktivován.");
+        seasonRepository.deactivateAll();
+        season.setActive(true);
+        seasonRepository.save(season);
+        return new ServiceResult("/admin/seasons", "success", "Ročník " + season.getName() + " aktivován.");
     }
 
     @Transactional
-    public ServiceResult archivovatRocnik(Long id) {
-        var rocnikOpt = rocnikRepository.findById(id);
-        if (rocnikOpt.isEmpty()) {
-            return new ServiceResult("/admin/rocniky", "error", "Ročník nebyl nalezen.");
+    public ServiceResult archiveSeason(Long id) {
+        var seasonOpt = seasonRepository.findById(id);
+        if (seasonOpt.isEmpty()) {
+            return new ServiceResult("/admin/seasons", "error", "Ročník nebyl nalezen.");
         }
-        var rocnik = rocnikOpt.get();
-        rocnik.setAktivni(false);
-        rocnikRepository.save(rocnik);
-        return new ServiceResult("/admin/rocniky", "success", "Ročník byl archivován.");
+        var season = seasonOpt.get();
+        season.setActive(false);
+        seasonRepository.save(season);
+        return new ServiceResult("/admin/seasons", "success", "Ročník byl archivován.");
     }
 
     @Transactional
-    public ServiceResult smazRocnik(Long id) {
-        var rocnikOpt = rocnikRepository.findById(id);
-        if (rocnikOpt.isEmpty()) {
-            return new ServiceResult("/admin/rocniky", "error", "Ročník nebyl nalezen.");
+    public ServiceResult deleteSeason(Long id) {
+        var seasonOpt = seasonRepository.findById(id);
+        if (seasonOpt.isEmpty()) {
+            return new ServiceResult("/admin/seasons", "error", "Ročník nebyl nalezen.");
         }
 
-        var rocnik = rocnikOpt.get();
-        if (rocnik.isAktivni()) {
-            return new ServiceResult("/admin/rocniky", "error", "Aktivní ročník nelze smazat. Nejprve ho archivujte.");
+        var season = seasonOpt.get();
+        if (season.isActive()) {
+            return new ServiceResult("/admin/seasons", "error", "Aktivní ročník nelze smazat. Nejprve ho archivujte.");
         }
 
         try {
-            rocnikRepository.delete(rocnik);
-            return new ServiceResult("/admin/rocniky", "success", "Ročník byl smazán.");
+            seasonRepository.delete(season);
+            return new ServiceResult("/admin/seasons", "success", "Ročník byl smazán.");
         } catch (DataIntegrityViolationException e) {
-            return new ServiceResult("/admin/rocniky", "error", "Ročník nelze smazat, protože jsou na něj navázány týmy nebo zápasy.");
+            return new ServiceResult("/admin/seasons", "error", "Ročník nelze smazat, protože jsou na něj navázány týmy nebo zápasy.");
         }
     }
 }

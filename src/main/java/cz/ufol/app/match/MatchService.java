@@ -1,13 +1,13 @@
 package cz.ufol.app.match;
 
-import cz.ufol.app.player.Registrace;
-import cz.ufol.app.player.RegistraceRepository;
-import cz.ufol.app.season.Rocnik;
-import cz.ufol.app.season.RocnikRepository;
-import cz.ufol.app.team.Tym;
-import cz.ufol.app.team.TymRepository;
-import cz.ufol.app.venue.MistoKonani;
-import cz.ufol.app.venue.MistoKonaniRepository;
+import cz.ufol.app.player.Registration;
+import cz.ufol.app.player.RegistrationRepository;
+import cz.ufol.app.season.Season;
+import cz.ufol.app.season.SeasonRepository;
+import cz.ufol.app.team.Team;
+import cz.ufol.app.team.TeamRepository;
+import cz.ufol.app.venue.Venue;
+import cz.ufol.app.venue.VenueRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,193 +24,193 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-public class ZapasService {
+public class MatchService {
 
-    private final ZapasRepository zapasRepository;
-    private final TymRepository tymRepository;
-    private final RocnikRepository rocnikRepository;
-    private final MistoKonaniRepository mistoKonaniRepository;
-    private final RegistraceRepository registraceRepository;
-    private final UcastVZapaseRepository ucastVZapaseRepository;
+    private final MatchRepository matchRepository;
+    private final TeamRepository teamRepository;
+    private final SeasonRepository seasonRepository;
+    private final VenueRepository venueRepository;
+    private final RegistrationRepository registrationRepository;
+    private final MatchParticipationRepository matchParticipationRepository;
 
     public record ServiceResult(String redirectPath, String flashType, String flashMessage) {}
-    public record AdminZapasyListData(Rocnik aktivniRocnik, List<Zapas> naplanovane, List<Zapas> odehrane) {}
-    public record AdminZapasFormData(List<Tym> tymy, List<Rocnik> rocniky, List<MistoKonani> mistaKonani) {}
-    public record AdminVysledekFormData(
+    public record AdminMatchesListData(Season activeSeason, List<Match> upcoming, List<Match> played) {}
+    public record AdminMatchFormData(List<Team> teams, List<Season> seasons, List<Venue> venues) {}
+    public record AdminResultFormData(
             boolean found,
             String errorMessage,
-            Zapas zapas,
-            List<Registrace> domaciRegistrace,
-            List<Registrace> hosteRegistrace,
-            Set<Long> selectedRegistraceIds,
-            Map<Long, Integer> golyMap
+            Match match,
+            List<Registration> homeTeamRegistration,
+            List<Registration> awayTeamRegistration,
+            Set<Long> selectedRegistrationIds,
+            Map<Long, Integer> goalsMap
     ) {}
 
     @Transactional(readOnly = true)
-    public List<Zapas> findNaplanovane() {
-        Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
-        if (aktivniRocnik.isEmpty()) return Collections.emptyList();
-        return zapasRepository
-                .findByRocnikAndOdehranFalseOrderByDatumCasAsc(aktivniRocnik.get());
+    public List<Match> findUpcoming() {
+        Optional<Season> activeSeason = seasonRepository.findByActiveTrue();
+        if (activeSeason.isEmpty()) return Collections.emptyList();
+        return matchRepository
+                .findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(activeSeason.get());
     }
 
     @Transactional(readOnly = true)
-    public List<Zapas> findOdehrane() {
-        Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
-        if (aktivniRocnik.isEmpty()) return Collections.emptyList();
-        return zapasRepository
-                .findByRocnikAndOdehranTrueOrderByDatumCasDesc(aktivniRocnik.get());
+    public List<Match> findPlayed() {
+        Optional<Season> activeSeason = seasonRepository.findByActiveTrue();
+        if (activeSeason.isEmpty()) return Collections.emptyList();
+        return matchRepository
+                .findBySeasonAndPlayedTrueOrderByMatchDatetimeDesc(activeSeason.get());
     }
 
     @Transactional(readOnly = true)
-    public List<Zapas> findTop3Naplanovane() {
-        Optional<Rocnik> aktivniRocnik = rocnikRepository.findByAktivniTrue();
-        if (aktivniRocnik.isEmpty()) return Collections.emptyList();
-        return zapasRepository
-                .findByRocnikAndOdehranFalseOrderByDatumCasAsc(aktivniRocnik.get())
+    public List<Match> findTop3Upcoming() {
+        Optional<Season> activeSeason = seasonRepository.findByActiveTrue();
+        if (activeSeason.isEmpty()) return Collections.emptyList();
+        return matchRepository
+                .findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(activeSeason.get())
                 .stream()
                 .limit(3)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<Zapas> findTop3UpcomingForHome() {
-        return zapasRepository.findTop3ByOdehranFalseOrderByDatumCasAsc();
+    public List<Match> findTop3UpcomingForHome() {
+        return matchRepository.findTop3ByPlayedFalseOrderByMatchDatetimeAsc();
     }
 
     @Transactional(readOnly = true)
-    public AdminZapasyListData getAdminZapasyListData() {
-        var aktivniRocnik = rocnikRepository.findByAktivniTrue().orElse(null);
-        if (aktivniRocnik == null) {
-            return new AdminZapasyListData(null, List.of(), List.of());
+    public AdminMatchesListData getAdminMatchesListData() {
+        var activeSeason = seasonRepository.findByActiveTrue().orElse(null);
+        if (activeSeason == null) {
+            return new AdminMatchesListData(null, List.of(), List.of());
         }
 
-        return new AdminZapasyListData(
-                aktivniRocnik,
-                zapasRepository.findByRocnikAndOdehranFalseOrderByDatumCasAsc(aktivniRocnik),
-                zapasRepository.findByRocnikAndOdehranTrueOrderByDatumCasDesc(aktivniRocnik)
+        return new AdminMatchesListData(
+                activeSeason,
+                matchRepository.findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(activeSeason),
+                matchRepository.findBySeasonAndPlayedTrueOrderByMatchDatetimeDesc(activeSeason)
         );
     }
 
     @Transactional(readOnly = true)
-    public AdminZapasFormData getAdminZapasFormData() {
-        return new AdminZapasFormData(
-                tymRepository.findByAktivniTrue(),
-                rocnikRepository.findAllByOrderByRokOdDesc(),
-                mistoKonaniRepository.findAllByOrderByNazevAsc()
+    public AdminMatchFormData getAdminMatchFormData() {
+        return new AdminMatchFormData(
+                teamRepository.findByActiveTrue(),
+                seasonRepository.findAllByOrderByYearFromDesc(),
+                venueRepository.findAllByOrderByNameAsc()
         );
     }
 
     @Transactional
-    public ServiceResult createAdminZapas(Long domaciTymId, Long hosteTymId, Long rocnikId, Long mistoKonaniId, String datumCas) {
-        if (domaciTymId.equals(hosteTymId)) {
+    public ServiceResult createAdminMatch(Long homeTeamId, Long awayTeamId, Long seasonId, Long venueId, String dateTime) {
+        if (homeTeamId.equals(awayTeamId)) {
             return new ServiceResult("/admin/zapasy/novy", "error", "Tým nemůže hrát sám proti sobě.");
         }
 
-        var domaciOpt = tymRepository.findById(domaciTymId);
-        if (domaciOpt.isEmpty()) {
+        var homeTeamOpt = teamRepository.findById(homeTeamId);
+        if (homeTeamOpt.isEmpty()) {
             return new ServiceResult("/admin/zapasy/novy", "error", "Domácí tým nebyl nalezen.");
         }
 
-        var hosteOpt = tymRepository.findById(hosteTymId);
-        if (hosteOpt.isEmpty()) {
+        var awayTeamOpt = teamRepository.findById(awayTeamId);
+        if (awayTeamOpt.isEmpty()) {
             return new ServiceResult("/admin/zapasy/novy", "error", "Hostující tým nebyl nalezen.");
         }
 
-        var rocnikOpt = rocnikRepository.findById(rocnikId);
-        if (rocnikOpt.isEmpty()) {
+        var seasonOpt = seasonRepository.findById(seasonId);
+        if (seasonOpt.isEmpty()) {
             return new ServiceResult("/admin/zapasy/novy", "error", "Vybraný ročník nebyl nalezen.");
         }
 
-        var misto = mistoKonaniId != null ? mistoKonaniRepository.findById(mistoKonaniId).orElse(null) : null;
-        if (mistoKonaniId != null && misto == null) {
+        var venue = venueId != null ? venueRepository.findById(venueId).orElse(null) : null;
+        if (venueId != null && venue == null) {
             return new ServiceResult("/admin/zapasy/novy", "error", "Vybrané místo konání nebylo nalezeno.");
         }
 
-        LocalDateTime parsedDatumCas = null;
-        if (datumCas != null && !datumCas.isBlank()) {
+        LocalDateTime parsedDateTime = null;
+        if (dateTime != null && !dateTime.isBlank()) {
             try {
-                parsedDatumCas = LocalDateTime.parse(datumCas);
+                parsedDateTime = LocalDateTime.parse(dateTime);
             } catch (DateTimeParseException e) {
                 return new ServiceResult("/admin/zapasy/novy", "error", "Neplatný formát data a času. Použijte prosím validní datum.");
             }
         }
 
-        zapasRepository.save(Zapas.builder()
-                .domaciTym(domaciOpt.get())
-                .hosteTym(hosteOpt.get())
-                .rocnik(rocnikOpt.get())
-                .mistoKonani(misto)
-                .datumCas(parsedDatumCas)
-                .odehran(false)
-                .domaciSkore(0)
-                .hosteSkore(0)
+        matchRepository.save(Match.builder()
+                .homeTeam(homeTeamOpt.get())
+                .awayTeam(awayTeamOpt.get())
+                .season(seasonOpt.get())
+                .venue(venue)
+                .matchDatetime(parsedDateTime)
+                .played(false)
+                .homeScore(0)
+                .awayScore(0)
                 .build());
 
         return new ServiceResult("/admin/zapasy", "success", "Zápas byl přidán.");
     }
 
     @Transactional(readOnly = true)
-    public AdminVysledekFormData getAdminVysledekFormData(Long zapasId) {
-        var zapasOpt = zapasRepository.findById(zapasId);
-        if (zapasOpt.isEmpty()) {
-            return new AdminVysledekFormData(false, "Zápas nebyl nalezen.", null, List.of(), List.of(), Set.of(), Map.of());
+    public AdminResultFormData getAdminResultFormData(Long matchId) {
+        var MatchOpt = matchRepository.findById(matchId);
+        if (MatchOpt.isEmpty()) {
+            return new AdminResultFormData(false, "Zápas nebyl nalezen.", null, List.of(), List.of(), Set.of(), Map.of());
         }
 
-        var zapas = zapasOpt.get();
-        var domaciRegistrace = registraceRepository.findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getDomaciTym());
-        var hosteRegistrace = registraceRepository.findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getHosteTym());
-        var ucasti = ucastVZapaseRepository.findByZapas(zapas);
+        var match = MatchOpt.get();
+        var homeTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getHomeTeam());
+        var awayTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getAwayTeam());
+        var participations = matchParticipationRepository.findByMatch(match);
 
-        Set<Long> selectedRegistraceIds = ucasti.stream()
-                .map(u -> u.getRegistrace().getId())
+        Set<Long> selectedRegistrationIds = participations.stream()
+                .map(u -> u.getRegistration().getId())
                 .collect(Collectors.toSet());
-        Map<Long, Integer> golyMap = ucasti.stream()
-                .collect(Collectors.toMap(u -> u.getRegistrace().getId(), UcastVZapase::getGoly));
+        Map<Long, Integer> golyMap = participations.stream()
+                .collect(Collectors.toMap(u -> u.getRegistration().getId(), MatchParticipation::getGoals));
 
-        return new AdminVysledekFormData(true, null, zapas, domaciRegistrace, hosteRegistrace, selectedRegistraceIds, golyMap);
+        return new AdminResultFormData(true, null, match, homeTeamRegistration, awayTeamRegistration, selectedRegistrationIds, golyMap);
     }
 
     @Transactional
-    public ServiceResult ulozAdminVysledek(Long id, Integer domaciSkore, Integer hosteSkore, List<Long> registraceIds, Map<String, String[]> parameters) {
-        if (domaciSkore == null || hosteSkore == null) {
+    public ServiceResult saveAdminResult(Long id, Integer homeTeamScore, Integer awayTeamScore, List<Long> registrationIds, Map<String, String[]> parameters) {
+        if (homeTeamScore == null || awayTeamScore == null) {
             return new ServiceResult("/admin/zapasy/" + id + "/vysledek", "error", "Skóre musí být vyplněno.");
         }
-        if (domaciSkore < 0 || hosteSkore < 0) {
+        if (homeTeamScore < 0 || awayTeamScore < 0) {
             return new ServiceResult("/admin/zapasy/" + id + "/vysledek", "error", "Skóre nemůže být záporné.");
         }
 
-        var zapasOpt = zapasRepository.findById(id);
-        if (zapasOpt.isEmpty()) {
+        var MatchOpt = matchRepository.findById(id);
+        if (MatchOpt.isEmpty()) {
             return new ServiceResult("/admin/zapasy", "error", "Zápas nebyl nalezen.");
         }
 
-        var zapas = zapasOpt.get();
-        zapas.setDomaciSkore(domaciSkore);
-        zapas.setHosteSkore(hosteSkore);
-        zapas.setOdehran(true);
-        zapasRepository.save(zapas);
+        var match = MatchOpt.get();
+        match.setHomeScore(homeTeamScore);
+        match.setAwayScore(awayTeamScore);
+        match.setPlayed(true);
+        matchRepository.save(match);
 
-        var domaciRegistrace = registraceRepository.findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getDomaciTym());
-        var hosteRegistrace = registraceRepository.findByRocnikAndTymOrderByHracPrijmeniAscHracJmenoAsc(zapas.getRocnik(), zapas.getHosteTym());
+        var homeTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getHomeTeam());
+        var awayTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getAwayTeam());
 
-        Set<Long> povoleneRegistraceIds = Stream.concat(domaciRegistrace.stream().map(Registrace::getId), hosteRegistrace.stream().map(Registrace::getId))
+        Set<Long> allowedRegistrationIds = Stream.concat(homeTeamRegistration.stream().map(Registration::getId), awayTeamRegistration.stream().map(Registration::getId))
                 .collect(Collectors.toSet());
 
-        ucastVZapaseRepository.deleteByZapas(zapas);
+        matchParticipationRepository.deleteByMatch(match);
 
-        if (registraceIds != null && !registraceIds.isEmpty()) {
-            var validniRegistrace = registraceRepository.findAllById(registraceIds).stream()
-                    .filter(r -> povoleneRegistraceIds.contains(r.getId()))
+        if (registrationIds != null && !registrationIds.isEmpty()) {
+            var validniRegistrace = registrationRepository.findAllById(registrationIds).stream()
+                    .filter(r -> allowedRegistrationIds.contains(r.getId()))
                     .toList();
 
-            for (var registrace : validniRegistrace) {
-                String golyRaw = firstValue(parameters.get("goly_" + registrace.getId()));
-                int goly = parseGoly(golyRaw);
-                ucastVZapaseRepository.save(UcastVZapase.builder()
-                        .zapas(zapas)
-                        .registrace(registrace)
-                        .goly(goly)
+            for (var registration : validniRegistrace) {
+                String goalsRaw = firstValue(parameters.get("goly_" + registration.getId()));
+                int goals = parseGoals(goalsRaw);
+                matchParticipationRepository.save(MatchParticipation.builder()
+                        .match(match)
+                        .registration(registration)
+                        .goals(goals)
                         .build());
             }
         }
@@ -219,11 +219,11 @@ public class ZapasService {
     }
 
     @Transactional
-    public ServiceResult smazAdminZapas(Long id) {
-        if (!zapasRepository.existsById(id)) {
+    public ServiceResult deleteAdminMatch(Long id) {
+        if (!matchRepository.existsById(id)) {
             return new ServiceResult("/admin/zapasy", "error", "Zápas nebyl nalezen.");
         }
-        zapasRepository.deleteById(id);
+        matchRepository.deleteById(id);
         return new ServiceResult("/admin/zapasy", "success", "Zápas byl smazán.");
     }
 
@@ -231,12 +231,12 @@ public class ZapasService {
         return values == null || values.length == 0 ? null : values[0];
     }
 
-    private int parseGoly(String golyRaw) {
-        if (golyRaw == null || golyRaw.isBlank()) {
+    private int parseGoals(String goalsRaw) {
+        if (goalsRaw == null || goalsRaw.isBlank()) {
             return 0;
         }
         try {
-            int parsed = Integer.parseInt(golyRaw);
+            int parsed = Integer.parseInt(goalsRaw);
             return Math.max(parsed, 0);
         } catch (NumberFormatException ignored) {
             return 0;

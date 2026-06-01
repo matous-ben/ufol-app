@@ -1,7 +1,7 @@
 package cz.ufol.app.user;
 
 
-import cz.ufol.app.university.Univerzita;
+import cz.ufol.app.university.University;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,6 +1,6 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.season.RocnikService;
+import cz.ufol.app.season.SeasonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,9 +16,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/admin/rocniky")
 @RequiredArgsConstructor
 @Tag(name = "Admin - ročníky", description = "Správa ročníků — vyžaduje přihlášení")
-public class AdminRocnikController {
+public class AdminSeasonController {
 
-    private final RocnikService rocnikService;
+    private final SeasonService seasonService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - ročníky", description = "Správa jednotlivých ročníků")
@@ -31,16 +31,16 @@ public class AdminRocnikController {
             )
     )
     public String list(Model model) {
-        model.addAttribute("rocniky", rocnikService.findAllByRokOdDesc());
-        model.addAttribute("activePage", "rocniky");
-        return "admin/rocniky/list";
+        model.addAttribute("seasons", seasonService.findAllByYearFromDesc());
+        model.addAttribute("activePage", "seasons");
+        return "admin/seasons/list";
     }
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        model.addAttribute("rocniky", rocnikService.findAllByRokOdDesc());
-        model.addAttribute("activePage", "rocniky");
-        return "admin/rocniky/form";
+        model.addAttribute("rocniky", seasonService.findAllByYearFromDesc());
+        model.addAttribute("activePage", "seasons");
+        return "admin/seasons/form";
     }
 
     @PostMapping("/novy")
@@ -48,28 +48,28 @@ public class AdminRocnikController {
                          @RequestParam Integer rokOd,
                          @RequestParam Integer rokDo,
                          RedirectAttributes redirectAttributes) {
-        var result = rocnikService.createAdminRocnik(nazev, rokOd, rokDo);
+        var result = seasonService.createAdminSeason(nazev, rokOd, rokDo);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/aktivovat")
     public String aktivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var result = rocnikService.aktivovatRocnik(id);
+        var result = seasonService.activateSeason(id);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/archivovat")
     public String archivovat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var result = rocnikService.archivovatRocnik(id);
+        var result = seasonService.archiveSeason(id);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/smazat")
     public String smazat(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var result = rocnikService.smazRocnik(id);
+        var result = seasonService.deleteSeason(id);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }

@@ -5,14 +5,14 @@ import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
 
-import cz.ufol.app.player.Registrace;
+import cz.ufol.app.player.Registration;
 
-public interface UcastVZapaseRepository extends JpaRepository<UcastVZapase, Long> {
-    @EntityGraph(attributePaths = {"zapas", "registrace", "registrace.hrac"})
-    List<UcastVZapase> findByZapas(Zapas zapas);
-    void deleteByZapas(Zapas zapas);
+public interface MatchParticipationRepository extends JpaRepository<MatchParticipation, Long> {
+    @EntityGraph(attributePaths = {"match", "registration", "registration.player"})
+    List<MatchParticipation> findByMatch(Match match);
+    void deleteByMatch(Match match);
 
-    @EntityGraph(attributePaths = {"zapas", "registrace", "registrace.hrac"})
-    List<UcastVZapase> findByRegistraceIn(List<Registrace> registrace);
-    void deleteByRegistraceIn(List<Registrace> registrace);
+    @EntityGraph(attributePaths = {"match", "registration", "registration.player"})
+    List<MatchParticipation> findByRegistrationIn(List<Registration> registration);
+    void deleteByRegistrationIn(List<Registration> registration);
 }

@@ -33,6 +33,6 @@ public class StandingsController {
     public String tabulka(Model model) {
         model.addAttribute("standings", standingsService.calculateStandings());
         model.addAttribute("activePage", "tabulka");
-        return "public/tabulka";
+        return "standings";
     }
 }

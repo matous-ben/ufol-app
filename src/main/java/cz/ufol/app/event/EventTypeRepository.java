@@ -4,6 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface TypUdalostiRepository extends JpaRepository<EventType, Long> {
-    Optional<EventType> findByKod(String kod);
+public interface EventTypeRepository extends JpaRepository<EventType, Long> {
+    Optional<EventType> findByCode(String code);
 }

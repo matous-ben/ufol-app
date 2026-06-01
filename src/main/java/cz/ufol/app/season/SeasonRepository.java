@@ -8,13 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface RocnikRepository extends JpaRepository<Rocnik, Long> {
-    Optional<Rocnik> findByAktivniTrue();
-    List<Rocnik> findAllByOrderByRokOdDesc();
-    boolean existsByNazevIgnoreCase(String nazev);
+public interface SeasonRepository extends JpaRepository<Season, Long> {
+    Optional<Season> findByActiveTrue();
+    List<Season> findAllByOrderByYearFromDesc();
+    boolean existsByNameIgnoreCase(String name);
 
     @Modifying
     @Transactional
-    @Query("UPDATE Rocnik r SET r.aktivni = false")
+    @Query("UPDATE Season r SET r.active = false")
     void deactivateAll();
 }
