@@ -1,6 +1,6 @@
 package cz.ufol.app.admin;
 
-import cz.ufol.app.match.ZapasService;
+import cz.ufol.app.match.MatchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,9 +20,9 @@ import java.util.List;
 @RequestMapping("/admin/zapasy")
 @RequiredArgsConstructor
 @Tag(name = "Admin - zápasy", description = "Správa zápasů — vyžaduje přihlášení")
-public class AdminZapasController {
+public class AdminMatchController {
 
-    private final ZapasService zapasService;
+    private final MatchService matchService;
 
     @GetMapping
     @Operation(summary = "Admin dashboard - zápasy", description = "Správa jednotlivých zápasů")
@@ -35,8 +35,8 @@ public class AdminZapasController {
             )
     )
     public String list(Model model) {
-        var data = zapasService.getAdminZapasyListData();
-        model.addAttribute("aktivniRocnik", data.aktivniRocnik());
+        var data = matchService.getAdminZapasyListData();
+        model.addAttribute("aktivniRocnik", data.aktivniSeason());
         model.addAttribute("naplanovane", data.naplanovane());
         model.addAttribute("odehrane", data.odehrane());
         model.addAttribute("activePage", "zapasy");
@@ -45,7 +45,7 @@ public class AdminZapasController {
 
     @GetMapping("/novy")
     public String createForm(Model model) {
-        var data = zapasService.getAdminZapasFormData();
+        var data = matchService.getAdminZapasFormData();
         model.addAttribute("tymy", data.tymy());
         model.addAttribute("rocniky", data.rocniky());
         model.addAttribute("mistaKonani", data.mistaKonani());
@@ -60,7 +60,7 @@ public class AdminZapasController {
                          @RequestParam(required = false) Long mistoKonaniId,
                          @RequestParam(required = false) String datumCas,
                          RedirectAttributes redirectAttributes) {
-        var result = zapasService.createAdminZapas(domaciTymId, hosteTymId, rocnikId, mistoKonaniId, datumCas);
+        var result = matchService.createAdminZapas(domaciTymId, hosteTymId, rocnikId, mistoKonaniId, datumCas);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
@@ -68,15 +68,15 @@ public class AdminZapasController {
     // UC-02: Enter match result
     @GetMapping("/{id}/vysledek")
     public String vysledekForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        var data = zapasService.getAdminVysledekFormData(id);
+        var data = matchService.getAdminVysledekFormData(id);
         if (!data.found()) {
             redirectAttributes.addFlashAttribute("error", data.errorMessage());
             return "redirect:/admin/zapasy";
         }
 
-        model.addAttribute("zapas", data.zapas());
-        model.addAttribute("domaciRegistrace", data.domaciRegistrace());
-        model.addAttribute("hosteRegistrace", data.hosteRegistrace());
+        model.addAttribute("zapas", data.match());
+        model.addAttribute("domaciRegistrace", data.domaciRegistration());
+        model.addAttribute("hosteRegistrace", data.hosteRegistration());
         model.addAttribute("selectedRegistraceIds", data.selectedRegistraceIds());
         model.addAttribute("golyMap", data.golyMap());
         model.addAttribute("activePage", "zapasy");
@@ -90,14 +90,14 @@ public class AdminZapasController {
                            @RequestParam(required = false) List<Long> registraceIds,
                            HttpServletRequest request,
                            RedirectAttributes redirectAttributes) {
-        var result = zapasService.ulozAdminVysledek(id, domaciSkore, hosteSkore, registraceIds, request.getParameterMap());
+        var result = matchService.ulozAdminVysledek(id, domaciSkore, hosteSkore, registraceIds, request.getParameterMap());
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
 
     @PostMapping("/{id}/smazat")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        var result = zapasService.smazAdminZapas(id);
+        var result = matchService.smazAdminZapas(id);
         redirectAttributes.addFlashAttribute(result.flashType(), result.flashMessage());
         return "redirect:" + result.redirectPath();
     }
