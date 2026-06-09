@@ -8,20 +8,14 @@ import java.util.List;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
     @EntityGraph(attributePaths = {"season", "homeTeam", "homeTeam.university", "awayTeam", "awayTeam.university", "venue"})
-    List<Match> findBySeason(Season season);
-
-    @EntityGraph(attributePaths = {"season", "homeTeam", "homeTeam.university", "awayTeam", "awayTeam.university", "venue"})
     List<Match> findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(Season season);
 
     @EntityGraph(attributePaths = {"season", "homeTeam", "homeTeam.university", "awayTeam", "awayTeam.university", "venue"})
     List<Match> findBySeasonAndPlayedTrueOrderByMatchDatetimeDesc(Season season);
 
     @EntityGraph(attributePaths = {"season", "homeTeam", "homeTeam.university", "awayTeam", "awayTeam.university", "venue"})
-    List<Match> findTop5ByPlayedTrueOrderByMatchDatetimeDesc();
-
-    @EntityGraph(attributePaths = {"season", "homeTeam", "homeTeam.university", "awayTeam", "awayTeam.university", "venue"})
     List<Match> findBySeasonAndPlayedTrue(Season season);
 
     @EntityGraph(attributePaths = {"season", "homeTeam", "homeTeam.university", "awayTeam", "awayTeam.university", "venue"})
-    List<Match> findTop3ByPlayedFalseOrderByMatchDatetimeAsc();
+    List<Match> findBySeasonOrderByMatchDatetimeAsc(Season season);
 }

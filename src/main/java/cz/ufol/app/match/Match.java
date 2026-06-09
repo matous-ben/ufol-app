@@ -1,6 +1,7 @@
 package cz.ufol.app.match;
 
 
+import cz.ufol.app.exception.BadRequestException;
 import cz.ufol.app.season.Season;
 import cz.ufol.app.team.Team;
 import cz.ufol.app.venue.Venue;
@@ -21,32 +22,35 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_matches_played_datetime", columnList = "played, match_datetime")
         }
 )
+
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Match {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(
+            name = "matches_seq",
+            sequenceName = "matches_sequence"
+    )
     @Column(updatable = false, nullable = false)
-    @Setter(AccessLevel.NONE)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Season relation is needed only in selected use-cases; lazy avoids unnecessary joins.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "season_id", nullable = false)
     private Season season;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Team details are loaded for match pages only; lazy keeps generic queries lightweight.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "home_team_id", nullable = false)
     private Team homeTeam;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Away team is read conditionally; lazy prevents over-fetching in write paths.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "away_team_id", nullable = false)
     private Team awayTeam;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Venue is optional and not always rendered, so lazy loading is preferable.
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venue_id")
     private Venue venue;
 
@@ -57,10 +61,27 @@ public class Match {
     private boolean played;
 
     @Column(name = "home_score")
-    private Integer homeScore = 0;
+    private Integer homeScore;
 
     @Column(name = "away_score")
-    private Integer awayScore = 0;
+    private Integer awayScore;
+
+    public void recordResult(Integer homeScore, Integer awayScore) {
+        if (homeScore < 0 || awayScore < 0) {
+            throw new BadRequestException("Score cannot be negative");
+        }
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
+        this.played = true;
+    }
+
+    public void updateLogistics(Venue venue, LocalDateTime matchDatetime) {
+        if (this.played) {
+            throw new BadRequestException("Cannot update logistics for a match that has already been played.");
+        }
+        this.venue = venue;
+        this.matchDatetime = matchDatetime;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -73,17 +94,5 @@ public class Match {
     @Override
     public int hashCode() {
         return Hibernate.getClass(this).hashCode();
-    }
-
-    private Long seasonId() {
-        return season != null ? season.getId() : null;
-    }
-
-    private Long homeTeamId() {
-        return homeTeam != null ? homeTeam.getId() : null;
-    }
-
-    private Long awayTeamId() {
-        return awayTeam != null ? awayTeam.getId() : null;
     }
 }

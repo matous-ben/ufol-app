@@ -15,7 +15,8 @@ import org.hibernate.Hibernate;
 @Builder
 public class University {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(updatable = false, nullable = false)
     @Setter(AccessLevel.NONE)
     private Long id;
@@ -28,8 +29,8 @@ public class University {
     @Column(name = "abbreviation", length = 15, nullable = false, unique = true)
     private String abbreviation;
 
-    @Column(name = "logo_file", length = 50)
-    private String logoFile;
+    @Column(name = "logo_url", length = 50)
+    private String logoUrl;
 
     @Override
     public boolean equals(Object o) {
