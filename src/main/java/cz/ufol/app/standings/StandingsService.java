@@ -72,7 +72,7 @@ public class StandingsService {
             Team away = match.getAwayTeam();
 
             int homeScore = match.getHomeScore() != null ? match.getHomeScore() : 0;
-            int awayScore = match.getAwayScore()  != null ? match.getAwayScore() : 0;
+            int awayScore = match.getAwayScore() != null ? match.getAwayScore() : 0;
 
             // Only add stats if the team is in our active map
             if (statsMap.containsKey(home.getId())) {
@@ -101,7 +101,7 @@ public class StandingsService {
                     s.goalsFor,
                     s.goalsAgainst,
                     s.getPoints(),
-                    team.getUniversity().getLogoFile()
+                    team.getUniversity().getLogoUrl()
             ));
         }
 

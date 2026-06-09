@@ -1,5 +1,12 @@
 package cz.ufol.app.match;
 
+import cz.ufol.app.exception.BadRequestException;
+import cz.ufol.app.exception.InvalidMatchResultException;
+import cz.ufol.app.exception.ResourceNotFoundException;
+import cz.ufol.app.match.dto.CreateMatchRequest;
+import cz.ufol.app.match.dto.MatchResponse;
+import cz.ufol.app.match.dto.RecordMatchResultRequest;
+import cz.ufol.app.match.dto.UpdateMatchLogisticsRequest;
 import cz.ufol.app.player.Registration;
 import cz.ufol.app.player.RegistrationRepository;
 import cz.ufol.app.season.Season;
@@ -13,14 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -33,213 +35,205 @@ public class MatchService {
     private final RegistrationRepository registrationRepository;
     private final MatchParticipationRepository matchParticipationRepository;
 
-    public record ServiceResult(String redirectPath, String flashType, String flashMessage) {}
-    public record AdminMatchesListData(Season activeSeason, List<Match> upcoming, List<Match> played) {}
-    public record AdminMatchFormData(List<Team> teams, List<Season> seasons, List<Venue> venues) {}
-    public record AdminResultFormData(
-            boolean found,
-            String errorMessage,
-            Match match,
-            List<Registration> homeTeamRegistration,
-            List<Registration> awayTeamRegistration,
-            Set<Long> selectedRegistrationIds,
-            Map<Long, Integer> goalsMap
-    ) {}
 
     @Transactional(readOnly = true)
-    public List<Match> findUpcoming() {
-        Optional<Season> activeSeason = seasonRepository.findByActiveTrue();
-        if (activeSeason.isEmpty()) return Collections.emptyList();
-        return matchRepository
-                .findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(activeSeason.get());
+    public List<MatchResponse> getMatches() {
+        return seasonRepository.findByActiveTrue()
+                .map(season -> matchRepository.findBySeasonOrderByMatchDatetimeAsc(season)
+                        .stream()
+                        .map(this::mapToMatchResponse)
+                        .toList())
+                .orElse(List.of());
     }
 
     @Transactional(readOnly = true)
-    public List<Match> findPlayed() {
-        Optional<Season> activeSeason = seasonRepository.findByActiveTrue();
-        if (activeSeason.isEmpty()) return Collections.emptyList();
-        return matchRepository
-                .findBySeasonAndPlayedTrueOrderByMatchDatetimeDesc(activeSeason.get());
+    public List<MatchResponse> findUpcoming() {
+        return seasonRepository.findByActiveTrue()
+                .map(season -> matchRepository
+                        .findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(season)
+                        .stream()
+                        .map(this::mapToMatchResponse)
+                        .toList())
+                .orElse(List.of());
     }
 
     @Transactional(readOnly = true)
-    public List<Match> findTop3Upcoming() {
-        Optional<Season> activeSeason = seasonRepository.findByActiveTrue();
-        if (activeSeason.isEmpty()) return Collections.emptyList();
-        return matchRepository
-                .findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(activeSeason.get())
-                .stream()
-                .limit(3)
-                .toList();
+    public List<MatchResponse> findPlayed() {
+        return seasonRepository.findByActiveTrue()
+                .map(season -> matchRepository
+                        .findBySeasonAndPlayedTrueOrderByMatchDatetimeDesc(season)
+                        .stream()
+                        .map(this::mapToMatchResponse)
+                        .toList())
+                .orElse(List.of());
     }
 
     @Transactional(readOnly = true)
-    public List<Match> findTop3UpcomingForHome() {
-        return matchRepository.findTop3ByPlayedFalseOrderByMatchDatetimeAsc();
+    public List<MatchResponse> findTop3Upcoming() {
+        return seasonRepository.findByActiveTrue()
+                .map(season -> matchRepository
+                        .findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(season)
+                        .stream()
+                        .limit(3)
+                        .map(this::mapToMatchResponse)
+                        .toList())
+                .orElse(List.of());
     }
 
     @Transactional(readOnly = true)
-    public AdminMatchesListData getAdminMatchesListData() {
-        var activeSeason = seasonRepository.findByActiveTrue().orElse(null);
-        if (activeSeason == null) {
-            return new AdminMatchesListData(null, List.of(), List.of());
-        }
-
-        return new AdminMatchesListData(
-                activeSeason,
-                matchRepository.findBySeasonAndPlayedFalseOrderByMatchDatetimeAsc(activeSeason),
-                matchRepository.findBySeasonAndPlayedTrueOrderByMatchDatetimeDesc(activeSeason)
-        );
+    public MatchResponse getMatchById(Long matchId) {
+        return matchRepository.findById(matchId)
+                .map(this::mapToMatchResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Match with ID " + matchId + " not found"));
     }
 
-    @Transactional(readOnly = true)
-    public AdminMatchFormData getAdminMatchFormData() {
-        return new AdminMatchFormData(
-                teamRepository.findByActiveTrue(),
-                seasonRepository.findAllByOrderByYearFromDesc(),
-                venueRepository.findAllByOrderByNameAsc()
-        );
-    }
-
-    @Transactional
-    public ServiceResult createAdminMatch(Long homeTeamId, Long awayTeamId, Long seasonId, Long venueId, String dateTime) {
-        if (homeTeamId.equals(awayTeamId)) {
-            return new ServiceResult("/admin/zapasy/novy", "error", "Tým nemůže hrát sám proti sobě.");
+    public MatchResponse createMatch(CreateMatchRequest createMatchRequest) {
+        if (createMatchRequest.homeTeamId().equals(createMatchRequest.awayTeamId())) {
+            throw new BadRequestException("The home team can't be the same as the away team.");
         }
 
-        var homeTeamOpt = teamRepository.findById(homeTeamId);
-        if (homeTeamOpt.isEmpty()) {
-            return new ServiceResult("/admin/zapasy/novy", "error", "Domácí tým nebyl nalezen.");
+        Team homeTeam = teamRepository.findById(createMatchRequest.homeTeamId())
+                .orElseThrow(() -> new ResourceNotFoundException("Home team with ID " + createMatchRequest.homeTeamId() + " not found"));
+        Team awayTeam = teamRepository.findById(createMatchRequest.awayTeamId())
+                .orElseThrow(() -> new ResourceNotFoundException("Away team with ID " + createMatchRequest.awayTeamId() + " not found"));
+        Season season = seasonRepository.findById(createMatchRequest.seasonId())
+                .orElseThrow(() -> new ResourceNotFoundException("Season with ID " + createMatchRequest.seasonId() + " not found"));
+        LocalDateTime matchDateTime = createMatchRequest.dateTime();
+        Venue venue = null;
+
+        // load optional venue if present
+        if (createMatchRequest.venueId() != null) {
+            venue = venueRepository.findById(createMatchRequest.venueId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Venue with ID " + createMatchRequest.venueId() + " not found"));
         }
 
-        var awayTeamOpt = teamRepository.findById(awayTeamId);
-        if (awayTeamOpt.isEmpty()) {
-            return new ServiceResult("/admin/zapasy/novy", "error", "Hostující tým nebyl nalezen.");
-        }
-
-        var seasonOpt = seasonRepository.findById(seasonId);
-        if (seasonOpt.isEmpty()) {
-            return new ServiceResult("/admin/zapasy/novy", "error", "Vybraný ročník nebyl nalezen.");
-        }
-
-        var venue = venueId != null ? venueRepository.findById(venueId).orElse(null) : null;
-        if (venueId != null && venue == null) {
-            return new ServiceResult("/admin/zapasy/novy", "error", "Vybrané místo konání nebylo nalezeno.");
-        }
-
-        LocalDateTime parsedDateTime = null;
-        if (dateTime != null && !dateTime.isBlank()) {
-            try {
-                parsedDateTime = LocalDateTime.parse(dateTime);
-            } catch (DateTimeParseException e) {
-                return new ServiceResult("/admin/zapasy/novy", "error", "Neplatný formát data a času. Použijte prosím validní datum.");
-            }
-        }
-
-        matchRepository.save(Match.builder()
-                .homeTeam(homeTeamOpt.get())
-                .awayTeam(awayTeamOpt.get())
-                .season(seasonOpt.get())
-                .venue(venue)
-                .matchDatetime(parsedDateTime)
+        // build the new match entity
+        Match newMatch = Match.builder()
                 .played(false)
-                .homeScore(0)
-                .awayScore(0)
-                .build());
+                .homeTeam(homeTeam)
+                .awayTeam(awayTeam)
+                .season(season)
+                .matchDatetime(matchDateTime)
+                .venue(venue)
+                .build();
 
-        return new ServiceResult("/admin/zapasy", "success", "Zápas byl přidán.");
-    }
-
-    @Transactional(readOnly = true)
-    public AdminResultFormData getAdminResultFormData(Long matchId) {
-        var MatchOpt = matchRepository.findById(matchId);
-        if (MatchOpt.isEmpty()) {
-            return new AdminResultFormData(false, "Zápas nebyl nalezen.", null, List.of(), List.of(), Set.of(), Map.of());
-        }
-
-        var match = MatchOpt.get();
-        var homeTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getHomeTeam());
-        var awayTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getAwayTeam());
-        var participations = matchParticipationRepository.findByMatch(match);
-
-        Set<Long> selectedRegistrationIds = participations.stream()
-                .map(u -> u.getRegistration().getId())
-                .collect(Collectors.toSet());
-        Map<Long, Integer> golyMap = participations.stream()
-                .collect(Collectors.toMap(u -> u.getRegistration().getId(), MatchParticipation::getGoals));
-
-        return new AdminResultFormData(true, null, match, homeTeamRegistration, awayTeamRegistration, selectedRegistrationIds, golyMap);
+        // save the new match and return a MatchResponse
+        Match savedMatch = matchRepository.save(newMatch);
+        return mapToMatchResponse(savedMatch);
     }
 
     @Transactional
-    public ServiceResult saveAdminResult(Long id, Integer homeTeamScore, Integer awayTeamScore, List<Long> registrationIds, Map<String, String[]> parameters) {
-        if (homeTeamScore == null || awayTeamScore == null) {
-            return new ServiceResult("/admin/zapasy/" + id + "/vysledek", "error", "Skóre musí být vyplněno.");
-        }
-        if (homeTeamScore < 0 || awayTeamScore < 0) {
-            return new ServiceResult("/admin/zapasy/" + id + "/vysledek", "error", "Skóre nemůže být záporné.");
-        }
+    public MatchResponse updateMatchLogistics(Long matchId, UpdateMatchLogisticsRequest request) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match with ID " + matchId + " not found"));
 
-        var MatchOpt = matchRepository.findById(id);
-        if (MatchOpt.isEmpty()) {
-            return new ServiceResult("/admin/zapasy", "error", "Zápas nebyl nalezen.");
+        // check for venue presence and then if it exists
+        Venue venue = match.getVenue();
+        if (request.venueId() != null) {
+            venue = venueRepository.findById(request.venueId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Venue with ID " + request.venueId() + " not found"));
         }
 
-        var match = MatchOpt.get();
-        match.setHomeScore(homeTeamScore);
-        match.setAwayScore(awayTeamScore);
-        match.setPlayed(true);
-        matchRepository.save(match);
+        // store the updated dateTime if present
+        LocalDateTime matchDateTime = request.dateTime() != null ? request.dateTime() : match.getMatchDatetime();
 
-        var homeTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getHomeTeam());
-        var awayTeamRegistration = registrationRepository.findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getAwayTeam());
+        match.updateLogistics(venue, matchDateTime);
+        return mapToMatchResponse(match);
+    }
 
-        Set<Long> allowedRegistrationIds = Stream.concat(homeTeamRegistration.stream().map(Registration::getId), awayTeamRegistration.stream().map(Registration::getId))
+    @Transactional
+    public MatchResponse recordMatchResult(Long matchId, RecordMatchResultRequest request) {
+        // load the match if it exists
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Match with ID " + matchId + " not found"));
+
+        // load registrations for both teams
+        List<Registration> homeRegistrations = registrationRepository
+                .findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getHomeTeam());
+        List<Registration> awayRegistrations = registrationRepository
+                .findBySeasonAndTeamOrderByPlayerLastNameAscPlayerFirstNameAsc(match.getSeason(), match.getAwayTeam());
+
+        // convert ID to HashSets for O(1) optimization
+        Set<Long> homePlayerIds = homeRegistrations.stream()
+                .map(Registration::getId)
                 .collect(Collectors.toSet());
 
+        Set<Long> awayPlayerIds = awayRegistrations.stream()
+                .map(Registration::getId)
+                .collect(Collectors.toSet());
+
+        // business validation of goals
+        int calculatedHomeScore = request.playerParticipations().stream()
+                .filter(p -> homePlayerIds.contains(p.registrationId()))
+                .mapToInt(RecordMatchResultRequest.PlayerStatsRequest::goals)
+                .sum();
+
+        int calculatedAwayScore = request.playerParticipations().stream()
+                .filter(p -> awayPlayerIds.contains(p.registrationId()))
+                .mapToInt(RecordMatchResultRequest.PlayerStatsRequest::goals)
+                .sum();
+
+        if (calculatedHomeScore != request.homeTeamScore() || calculatedAwayScore != request.awayTeamScore()) {
+            throw new InvalidMatchResultException("The sum of player goals does not match the final team scores.");
+        }
+
+        // update the match result in the database
+        match.recordResult(request.homeTeamScore(), request.awayTeamScore());
+
+        // participation and statistics management (removing old, saving new)
         matchParticipationRepository.deleteByMatch(match);
 
-        if (registrationIds != null && !registrationIds.isEmpty()) {
-            var validniRegistrace = registrationRepository.findAllById(registrationIds).stream()
-                    .filter(r -> allowedRegistrationIds.contains(r.getId()))
-                    .toList();
+        for (var playerDto : request.playerParticipations()) {
+            boolean isHome = homePlayerIds.contains(playerDto.registrationId());
+            boolean isAway = awayPlayerIds.contains(playerDto.registrationId());
 
-            for (var registration : validniRegistrace) {
-                String goalsRaw = firstValue(parameters.get("goly_" + registration.getId()));
-                int goals = parseGoals(goalsRaw);
-                matchParticipationRepository.save(MatchParticipation.builder()
-                        .match(match)
-                        .registration(registration)
-                        .goals(goals)
-                        .build());
+            if (!isHome && !isAway) {
+                throw new BadRequestException("Player with registration ID " + playerDto.registrationId() + " does not belong to either team.");
             }
+
+            Registration registration = registrationRepository.getReferenceById(playerDto.registrationId());
+
+            MatchParticipation participation = MatchParticipation.builder()
+                    .match(match)
+                    .registration(registration)
+                    .goals(playerDto.goals())
+                    .build();
+
+            matchParticipationRepository.save(participation);
         }
 
-        return new ServiceResult("/admin/zapasy", "success", "Výsledek zápasu byl uložen. Tabulka se automaticky aktualizovala.");
+        // transformation back into DTO
+        return mapToMatchResponse(match);
     }
 
     @Transactional
-    public ServiceResult deleteAdminMatch(Long id) {
-        if (!matchRepository.existsById(id)) {
-            return new ServiceResult("/admin/zapasy", "error", "Zápas nebyl nalezen.");
+    public void deleteMatch(Long matchId) {
+        if (!matchRepository.existsById(matchId)) {
+            throw new ResourceNotFoundException("Match with ID " + matchId + " not found");
         }
-        matchRepository.deleteById(id);
-        return new ServiceResult("/admin/zapasy", "success", "Zápas byl smazán.");
+        matchRepository.deleteById(matchId);
     }
 
-    private String firstValue(String[] values) {
-        return values == null || values.length == 0 ? null : values[0];
-    }
-
-    private int parseGoals(String goalsRaw) {
-        if (goalsRaw == null || goalsRaw.isBlank()) {
-            return 0;
-        }
-        try {
-            int parsed = Integer.parseInt(goalsRaw);
-            return Math.max(parsed, 0);
-        } catch (NumberFormatException ignored) {
-            return 0;
-        }
+    // private helper method for mapping
+    private MatchResponse mapToMatchResponse(Match match) {
+        return new MatchResponse(
+                match.getId(),
+                new MatchResponse.TeamSummary(
+                        match.getHomeTeam().getId(),
+                        match.getHomeTeam().getName(),
+                        match.getHomeTeam().getUniversity().getLogoUrl()
+                ),
+                new MatchResponse.TeamSummary(
+                        match.getAwayTeam().getId(),
+                        match.getAwayTeam().getName(),
+                        match.getAwayTeam().getUniversity().getLogoUrl()
+                ),
+                match.getSeason().getName(),
+                match.getVenue() != null ? match.getVenue().getName() : null,
+                match.getMatchDatetime(),
+                match.isPlayed(),
+                match.getHomeScore(),
+                match.getAwayScore()
+        );
     }
 }
